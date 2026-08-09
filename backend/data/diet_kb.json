@@ -1,0 +1,102 @@
+{
+  "veg": {
+    "maintenance": {
+      "balanced": {
+        "calories": 1800,
+        "macro_breakdown": {"carbohydrate": "45%", "protein": "25%", "fat": "30%"},
+        "meals": [
+          {"time": "Breakfast", "items": "Vegetable oats upma with carrots and peas, boiled sprouts salad, unsweetened buttermilk (chaas)"},
+          {"time": "Lunch", "items": "2 whole wheat phulkas (without ghee), yellow moong dal, mixed vegetable sabzi, cucumber & tomato salad"},
+          {"time": "Snack", "items": "A cup of roasted chana (Bengal gram) and hot cardamom tea (unsweetened)"},
+          {"time": "Dinner", "items": "Small portion of brown rice or red rice, paneer and spinach (palak paneer) curry, stir-fried cabbage"}
+        ],
+        "foods_to_avoid": ["Sugary milk tea (chai)", "Fruit juices", "Maida-based snacks (samosa, biscuits)", "Excessive white rice"]
+      },
+      "strict": {
+        "calories": 1650,
+        "macro_breakdown": {"carbohydrate": "40%", "protein": "30%", "fat": "30%"},
+        "meals": [
+          {"time": "Breakfast", "items": "Besan (gram flour) chilla with grated paneer stuffing, mint-coriander chutney, low-fat curd"},
+          {"time": "Lunch", "items": "1 millet (jowar/bajra) roti, mixed dal tadka, stir-fried bitter gourd (karela) sabzi, green salad"},
+          {"time": "Snack", "items": "A handful of almonds and green tea or black tea (unsweetened)"},
+          {"time": "Dinner", "items": "Tofu/Paneer bhurji with bell peppers, cooked spinach, small cup of masoor dal soup"}
+        ],
+        "foods_to_avoid": ["Indian sweets (mithai)", "Sugary beverages", "Deep-fried snacks (pakoras)", "White bread or naans"]
+      }
+    },
+    "weight_loss": {
+      "balanced": {
+        "calories": 1500,
+        "macro_breakdown": {"carbohydrate": "40%", "protein": "30%", "fat": "30%"},
+        "meals": [
+          {"time": "Breakfast", "items": "Sprouted moong dal chilla, mint chutney, small cup of low-fat curd"},
+          {"time": "Lunch", "items": "1 multigrain roti, methi dal, bhindi (okra) sabzi, large cucumber and carrot salad"},
+          {"time": "Snack", "items": "Sprouts chat with onions, tomatoes, coriander and lemon juice"},
+          {"time": "Dinner", "items": "Tandoori paneer tikka (low oil) with grilled onions and capsicum, bowl of clear vegetable soup"}
+        ],
+        "foods_to_avoid": ["Sugary desserts", "Parathas cooked in oil/ghee", "Packaged bhujia or namkeen", "Sweet lassi"]
+      },
+      "strict": {
+        "calories": 1400,
+        "macro_breakdown": {"carbohydrate": "35%", "protein": "35%", "fat": "30%"},
+        "meals": [
+          {"time": "Breakfast", "items": "Ragi porridge (made with water, unsweetened) topped with flaxseeds, 5 soaked almonds"},
+          {"time": "Lunch", "items": "Moong dal (without tempering), stir-fried spinach and fenugreek greens, 1 jowar roti, green salad"},
+          {"time": "Snack", "items": "Roasted makhana (foxnuts) seasoned with black pepper and turmeric"},
+          {"time": "Dinner", "items": "Clear vegetable and lentil soup, sauteed French beans, steamed tofu or paneer cube salad"}
+        ],
+        "foods_to_avoid": ["Rice and wheat flour", "Refined sugar and jaggery", "Fruit juices and sweet fruits", "Fried namkeens"]
+      }
+    }
+  },
+  "non-veg": {
+    "maintenance": {
+      "balanced": {
+        "calories": 1900,
+        "macro_breakdown": {"carbohydrate": "40%", "protein": "30%", "fat": "30%"},
+        "meals": [
+          {"time": "Breakfast", "items": "Double egg omelette with spinach and tomatoes, 1 small ragi dosa"},
+          {"time": "Lunch", "items": "Stir-fried chicken/fish (tandoori style), dal fry, cucumber salad, small portion of brown rice"},
+          {"time": "Snack", "items": "A glass of spiced buttermilk (chaas) and handful of roasted peanuts"},
+          {"time": "Dinner", "items": "Light fish curry (Indian style), mixed vegetable sabzi, 1-2 thin phulkas"}
+        ],
+        "foods_to_avoid": ["Aerated sugary sodas", "Deep-fried chicken (Pakoras)", "Large portions of mutton/chicken biryani", "Bakery sweets"]
+      },
+      "strict": {
+        "calories": 1700,
+        "macro_breakdown": {"carbohydrate": "35%", "protein": "35%", "fat": "30%"},
+        "meals": [
+          {"time": "Breakfast", "items": "Two boiled eggs, spiced sauteed spinach (palak), cup of low-fat curd"},
+          {"time": "Lunch", "items": "Grilled/Tandoori fish or chicken breast, stir-fried ivy gourd (tindora) sabzi, bowl of yellow dal"},
+          {"time": "Snack", "items": "Roasted chana or handful of mixed nuts (walnuts/almonds)"},
+          {"time": "Dinner", "items": "Chicken shorba (spiced clear chicken soup), green salad, 1 small millet roti"}
+        ],
+        "foods_to_avoid": ["Creamy gravies (butter chicken)", "Deep-fried fish/chicken", "White rice and refined flour", "Indian sweets"]
+      }
+    },
+    "weight_loss": {
+      "balanced": {
+        "calories": 1550,
+        "macro_breakdown": {"carbohydrate": "35%", "protein": "40%", "fat": "25%"},
+        "meals": [
+          {"time": "Breakfast", "items": "Egg bhurji (made with 2 egg whites, 1 whole egg) with onions and chilies, cup of unsweetened green tea"},
+          {"time": "Lunch", "items": "Tandoori chicken tikka (5-6 pieces), dal tadka, large green salad bowl"},
+          {"time": "Snack", "items": "Buttermilk (chaas) with roasted cumin powder and cucumber slices"},
+          {"time": "Dinner", "items": "Clear chicken vegetable soup, pan-seared fish with lemon and spices, sauteed bell peppers"}
+        ],
+        "foods_to_avoid": ["Sugary drinks and juices", "Fried meat starters", "Refined flour wraps or rolls", "Large white rice portions"]
+      },
+      "strict": {
+        "calories": 1450,
+        "macro_breakdown": {"carbohydrate": "30%", "protein": "40%", "fat": "30%"},
+        "meals": [
+          {"time": "Breakfast", "items": "Two boiled eggs (sprinkled with black pepper), sauteed methi (fenugreek) greens"},
+          {"time": "Lunch", "items": "Steamed/Baked fish curry (low oil), green salad with lemon, small cup of low-fat curd"},
+          {"time": "Snack", "items": "Roasted chana (bengal gram) and ginger lemon tea (unsweetened)"},
+          {"time": "Dinner", "items": "Chicken clear soup with chopped vegetables and shredded chicken breast"}
+        ],
+        "foods_to_avoid": ["Biryani and fried rice", "Sweets and sugar-sweetened beverages", "Batter-fried items", "Mithai/Halwa"]
+      }
+    }
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "Prediabetes": [
+    {
+      "medication": "Lifestyle-first therapy; consider Metformin for high-risk patients",
+      "dosage": "Metformin 500 mg once daily with food when prescribed",
+      "warnings": ["Use only after clinician review", "Assess kidney function before Metformin"],
+      "monitoring": ["HbA1c every 3 months", "Fasting glucose logs"]
+    }
+  ],
+  "Type 1 Diabetes": [
+    {
+      "medication": "Basal-bolus insulin regimen",
+      "dosage": "Initial total daily dose often 0.4-0.6 units/kg/day, individualized by physician",
+      "warnings": ["Risk of hypoglycemia", "Requires glucose monitoring and education"],
+      "monitoring": ["Continuous or frequent capillary glucose", "Ketone testing during illness"]
+    }
+  ],
+  "Type 2 Diabetes": [
+    {
+      "medication": "Metformin",
+      "dosage": "500 mg once or twice daily with meals; titrate gradually as tolerated",
+      "warnings": ["Avoid in severe renal impairment", "GI upset is common during initiation"],
+      "monitoring": ["eGFR", "HbA1c", "Vitamin B12 during long-term use"]
+    }
+  ],
+  "Severe": [
+    {
+      "medication": "Insulin with urgent clinician supervision",
+      "dosage": "Individualized correction and basal dosing based on glucose, weight, and clinical context",
+      "warnings": ["Seek urgent care for vomiting, confusion, ketones, or glucose persistently above 300 mg/dL"],
+      "monitoring": ["Frequent glucose checks", "Electrolytes", "Ketones when symptomatic"]
+    }
+  ],
+  "Low Diabetes Risk": [
+    {
+      "medication": "No diabetes medication indicated from this screen",
+      "dosage": "N/A",
+      "warnings": ["This is decision support, not a diagnosis"],
+      "monitoring": ["Routine preventive screening"]
+    }
+  ]
+}

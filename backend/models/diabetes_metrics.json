@@ -1,0 +1,29 @@
+{
+  "model": "XGBoost",
+  "accuracy": 0.971,
+  "precision": 1.0,
+  "recall": 0.6712,
+  "f1_score": 0.8033,
+  "roc_auc": 0.9732,
+  "confusion_matrix": [
+    [
+      21864,
+      0
+    ],
+    [
+      695,
+      1419
+    ]
+  ],
+  "dataset_source": "KaggleHub:iammustafatz/diabetes-prediction-dataset:C:\\Users\\SURENDHAR\\.cache\\kagglehub\\datasets\\iammustafatz\\diabetes-prediction-dataset\\versions\\1\\diabetes_prediction_dataset.csv",
+  "feature_schema": [
+    "gender",
+    "age",
+    "hypertension",
+    "heart_disease",
+    "smoking_history",
+    "bmi",
+    "HbA1c_level",
+    "blood_glucose_level"
+  ]
+}

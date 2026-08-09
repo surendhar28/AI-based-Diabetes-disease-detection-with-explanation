@@ -1,0 +1,249 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&display=swap');
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  overflow-x: hidden;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+}
+.dark ::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(15, 118, 110, 0.3);
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(15, 118, 110, 0.5);
+}
+
+/* Glassmorphism Styles */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.7) !important;
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+}
+
+.dark .glass-panel {
+  background: rgba(15, 23, 30, 0.7) !important;
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.06) !important;
+}
+
+/* Animations */
+@keyframes shiftGradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes pipelineFlow {
+  from {
+    stroke-dashoffset: 24;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(20, 184, 166, 0.4);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 16px 4px rgba(20, 184, 166, 0.2);
+  }
+}
+
+@keyframes scannerSweep {
+  0% {
+    top: 0%;
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    top: 100%;
+    opacity: 0;
+  }
+}
+
+@keyframes textGradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Class Helpers */
+.animated-hero {
+  background: linear-gradient(-45deg, rgba(15, 118, 110, 0.15), rgba(124, 58, 237, 0.12), rgba(20, 184, 166, 0.08), rgba(139, 92, 246, 0.06));
+  background-size: 400% 400%;
+  animation: shiftGradient 15s ease infinite;
+}
+
+.text-gradient-primary {
+  background: linear-gradient(135deg, #0f766e 0%, #7c3aed 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.dark .text-gradient-primary {
+  background: linear-gradient(135deg, #14b8a6 0%, #a78bfa 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Redesigned Clinical Pipeline Workflow */
+.pipeline-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 24px;
+  overflow-x: auto;
+  gap: 16px;
+}
+
+.pipeline-node {
+  flex: 1;
+  min-width: 150px;
+  max-width: 220px;
+  padding: 16px;
+  border-radius: 12px;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(15, 118, 110, 0.15);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
+  transition: all 0.3s ease;
+  position: relative;
+  z-index: 2;
+}
+
+.dark .pipeline-node {
+  background: rgba(18, 24, 30, 0.8);
+  border: 1px solid rgba(20, 184, 166, 0.15);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.pipeline-node:hover {
+  transform: translateY(-4px);
+  border-color: rgba(20, 184, 166, 0.6);
+  box-shadow: 0 8px 24px rgba(20, 184, 166, 0.15);
+}
+
+.pipeline-node.active-hub {
+  animation: pulseGlow 3s infinite ease-in-out;
+  border-color: #14b8a6;
+}
+
+.pipeline-connector {
+  flex-grow: 1;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+}
+
+.pipeline-connector svg {
+  width: 100%;
+  overflow: visible;
+}
+
+.pipeline-flow-path {
+  fill: none;
+  stroke: rgba(15, 118, 110, 0.2);
+  stroke-width: 3;
+}
+
+.dark .pipeline-flow-path {
+  stroke: rgba(20, 184, 166, 0.2);
+}
+
+.pipeline-flow-path-active {
+  fill: none;
+  stroke: url(#connectorGradient);
+  stroke-width: 3;
+  stroke-dasharray: 6 6;
+  animation: pipelineFlow 1s linear infinite;
+}
+
+/* Confusion Matrix Redesign */
+.matrix-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.matrix-cell {
+  padding: 16px;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  background: rgba(15, 118, 110, 0.05);
+  border: 1px solid rgba(15, 118, 110, 0.1);
+}
+
+.dark .matrix-cell {
+  background: rgba(20, 184, 166, 0.04);
+  border: 1px solid rgba(20, 184, 166, 0.08);
+}
+
+.matrix-cell:hover {
+  background: rgba(15, 118, 110, 0.1);
+  transform: scale(1.02);
+}
+
+.dark .matrix-cell:hover {
+  background: rgba(20, 184, 166, 0.08);
+}
+
+/* Brain Scan Diagnostic Animation Overlay */
+.scanner-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, transparent, rgba(20, 184, 166, 0.8), transparent);
+  box-shadow: 0 0 10px rgba(20, 184, 166, 0.8);
+  animation: scannerSweep 2.5s infinite linear;
+}
+
+@media (max-width: 768px) {
+  .pipeline-wrapper {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .pipeline-connector {
+    height: 32px;
+    transform: rotate(90deg);
+  }
+  .pipeline-node {
+    max-width: none;
+  }
+}

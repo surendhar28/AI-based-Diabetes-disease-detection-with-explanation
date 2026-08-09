@@ -1,0 +1,33 @@
+{
+  "herbs": [
+    {
+      "name": "Fenugreek",
+      "benefit": "May support post-meal glucose control when used as food adjunct.",
+      "evidence_score": 0.72,
+      "source": "NIH/PubMed simulated evidence profile",
+      "research_summary": "Small clinical studies suggest fenugreek fiber may modestly reduce fasting and postprandial glucose, but dosing and preparation vary.",
+      "confidence_score": 0.68
+    },
+    {
+      "name": "Bitter gourd",
+      "benefit": "May have mild glucose-lowering effect as part of meals.",
+      "evidence_score": 0.61,
+      "source": "NIH/PubMed simulated evidence profile",
+      "research_summary": "Biomedical literature describes insulin-like compounds, but human trial evidence is mixed and should not replace medication.",
+      "confidence_score": 0.58
+    },
+    {
+      "name": "Amla",
+      "benefit": "Antioxidant-rich fruit that may support cardiometabolic health.",
+      "evidence_score": 0.57,
+      "source": "NIH/PubMed simulated evidence profile",
+      "research_summary": "Early studies report possible lipid and glucose benefits, with limited high-quality diabetes-specific outcome evidence.",
+      "confidence_score": 0.54
+    }
+  ],
+  "lifestyle_changes": [
+    {"name": "Walking", "recommendation": "150 minutes/week of brisk walking plus two resistance sessions", "evidence_score": 0.9},
+    {"name": "Yoga", "recommendation": "20-30 minutes/day of supervised yoga or breathing practice as an adjunct", "evidence_score": 0.7},
+    {"name": "Sleep regularity", "recommendation": "Target 7-8 hours with consistent sleep and wake times", "evidence_score": 0.78}
+  ]
+}
