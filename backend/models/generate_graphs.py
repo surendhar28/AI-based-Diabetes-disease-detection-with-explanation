@@ -6,8 +6,9 @@ import joblib
 import numpy as np
 import pandas as pd
 
-# Target artifact directory for saving plots
-ARTIFACT_DIR = Path(r"C:\Users\SURENDHAR\.gemini\antigravity-ide\brain\5e9ead19-f74c-4868-8de3-c2fe6c050917")
+# Target directory for saving plots
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+ARTIFACT_DIR = PROJECT_ROOT / "docs" / "images"
 
 # Try to import matplotlib and seaborn, install if missing
 try:
