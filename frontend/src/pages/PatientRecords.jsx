@@ -25,8 +25,12 @@ import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import SearchIcon from '@mui/icons-material/Search';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import EmailIcon from '@mui/icons-material/Email';
+import DownloadIcon from '@mui/icons-material/Download';
+import PrintIcon from '@mui/icons-material/Print';
 import { AppStateContext } from '../App.jsx';
 import { getCases, getCaseDetails } from '../services/api.js';
+import { downloadReportAsFile, triggerPrintReport } from '../utils/reportExporter.js';
+import TiltCard3D from '../components/TiltCard3D.jsx';
 
 export default function PatientRecords() {
   const { currentUser, setCaseResult } = useContext(AppStateContext);
@@ -74,6 +78,20 @@ export default function PatientRecords() {
     }
   };
 
+  const handleDownloadCase = async (caseId) => {
+    try {
+      const details = await getCaseDetails(caseId);
+      const formattedResult = {
+        general: details.general_prediction,
+        diabetes: details.diabetes_prediction,
+        input: { ...details.labs, symptoms: details.symptoms, patient_email: details.patient_email },
+      };
+      downloadReportAsFile(formattedResult, currentUser);
+    } catch (err) {
+      console.error('Failed to export case report:', err);
+    }
+  };
+
   const filteredCases = cases.filter(
     (c) =>
       c.patient_email.toLowerCase().includes(search.toLowerCase()) ||
@@ -106,15 +124,15 @@ export default function PatientRecords() {
   const isDoctor = currentUser?.role === 'doctor';
 
   return (
-    <Stack spacing={4}>
+    <Stack spacing={4} sx={{ perspective: '1200px' }}>
       <div>
         <Typography variant="h4" sx={{ fontWeight: 850, mb: 1 }}>
           {isDoctor ? 'Patient Diagnostic Records' : 'My Healthcare Consultations'}
         </Typography>
         <Typography color="text.secondary">
           {isDoctor
-            ? 'Track past symptom assessments, lab parameters, and generated AI diagnostic reports.'
-            : 'Access diet plans and medication guidelines prepared by your medical providers.'}
+            ? 'Track past symptom assessments, lab parameters, and download generated AI diagnostic reports.'
+            : 'Access and download personalized diet plans and medication guidelines prepared by your medical providers.'}
         </Typography>
       </div>
 
@@ -139,7 +157,7 @@ export default function PatientRecords() {
       )}
 
       {filteredCases.length === 0 ? (
-        <Card variant="outlined" sx={{ py: 6, textAlign: 'center' }}>
+        <Card variant="outlined" sx={{ py: 6, textAlign: 'center', borderRadius: '20px' }}>
           <CardContent>
             <HistoryIcon sx={{ fontSize: 60, color: 'text.secondary', mb: 2 }} />
             <Typography variant="h6" color="text.secondary" gutterBottom>
@@ -153,15 +171,15 @@ export default function PatientRecords() {
           </CardContent>
         </Card>
       ) : isDoctor ? (
-        <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: '16px', overflow: 'hidden' }}>
+        <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: '20px', overflow: 'hidden' }}>
           <Table>
             <TableHead sx={{ bgcolor: (theme) => theme.palette.mode === 'light' ? '#f9fafb' : 'rgba(255,255,255,0.02)' }}>
               <TableRow>
-                <TableCell sx={{ fontWeight: 700 }}>Date Created</TableCell>
-                <TableCell sx={{ fontWeight: 700 }}>Patient Email</TableCell>
-                <TableCell sx={{ fontWeight: 700 }}>Symptoms Brief</TableCell>
-                <TableCell sx={{ fontWeight: 700 }}>Diabetes Screen</TableCell>
-                <TableCell sx={{ fontWeight: 700 }} align="right">Actions</TableCell>
+                <TableCell sx={{ fontWeight: 800 }}>Date Created</TableCell>
+                <TableCell sx={{ fontWeight: 800 }}>Patient Email</TableCell>
+                <TableCell sx={{ fontWeight: 800 }}>Symptoms Brief</TableCell>
+                <TableCell sx={{ fontWeight: 800 }}>Diabetes Screen</TableCell>
+                <TableCell sx={{ fontWeight: 800 }} align="right">Actions &amp; Downloads</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -169,14 +187,14 @@ export default function PatientRecords() {
                 const hasDiabetesReport = !!c.diabetes_prediction;
                 return (
                   <TableRow key={c.id} hover>
-                    <TableCell sx={{ fontWeight: 550 }}>{formatDate(c.created_at)}</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }}>{formatDate(c.created_at)}</TableCell>
                     <TableCell>
                       <Stack direction="row" alignItems="center" spacing={1}>
                         <EmailIcon fontSize="small" color="action" />
-                        <Typography variant="body2" sx={{ fontWeight: 600 }}>{c.patient_email}</Typography>
+                        <Typography variant="body2" sx={{ fontWeight: 650 }}>{c.patient_email}</Typography>
                       </Stack>
                     </TableCell>
-                    <TableCell sx={{ maxWidth: 300, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    <TableCell sx={{ maxWidth: 280, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {c.symptoms}
                     </TableCell>
                     <TableCell>
@@ -184,18 +202,32 @@ export default function PatientRecords() {
                         label={hasDiabetesReport ? 'Triggered' : 'Negative'}
                         color={hasDiabetesReport ? 'warning' : 'success'}
                         size="small"
-                        sx={{ fontWeight: 700 }}
+                        sx={{ fontWeight: 800 }}
                       />
                     </TableCell>
                     <TableCell align="right">
-                      <Button
-                        size="small"
-                        variant="outlined"
-                        endIcon={<ArrowForwardIcon />}
-                        onClick={() => handleViewCase(c.id, true)}
-                      >
-                        View Report
-                      </Button>
+                      <Stack direction="row" spacing={1} justifyContent="flex-end">
+                        <Button
+                          size="small"
+                          variant="outlined"
+                          color="primary"
+                          startIcon={<DownloadIcon />}
+                          onClick={() => handleDownloadCase(c.id)}
+                          sx={{ borderRadius: '8px', fontWeight: 700 }}
+                        >
+                          Download Report
+                        </Button>
+                        <Button
+                          size="small"
+                          variant="contained"
+                          color="primary"
+                          endIcon={<ArrowForwardIcon />}
+                          onClick={() => handleViewCase(c.id, true)}
+                          sx={{ borderRadius: '8px', fontWeight: 700 }}
+                        >
+                          View UI
+                        </Button>
+                      </Stack>
                     </TableCell>
                   </TableRow>
                 );
@@ -204,51 +236,63 @@ export default function PatientRecords() {
           </Table>
         </TableContainer>
       ) : (
-        <Grid container spacing={3}>
+        <Grid container spacing={3.5}>
           {filteredCases.map((c) => {
-            const hasDiabetesReport = !!c.diabetes_prediction;
             return (
               <Grid item xs={12} md={6} key={c.id}>
-                <Card variant="outlined" sx={{ height: '100%', borderColor: 'primary.main', borderLeft: '5px solid', borderLeftColor: 'primary.main' }}>
-                  <CardContent sx={{ p: 3 }}>
-                    <Stack spacing={2}>
-                      <Stack direction="row" justifyContent="space-between" alignItems="center">
-                        <Stack direction="row" alignItems="center" spacing={1} color="text.secondary">
-                          <CalendarTodayIcon fontSize="small" />
-                          <Typography variant="caption" sx={{ fontWeight: 700 }}>
-                            {formatDate(c.created_at)}
-                          </Typography>
+                <TiltCard3D color="#14b8a6">
+                  <Card variant="outlined" sx={{ height: '100%', borderRadius: '20px', borderColor: 'primary.main', borderLeft: '6px solid', borderLeftColor: 'primary.main' }}>
+                    <CardContent sx={{ p: 3.5, transformStyle: 'preserve-3d' }}>
+                      <Stack spacing={2.5}>
+                        <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ transform: 'translateZ(20px)' }}>
+                          <Stack direction="row" alignItems="center" spacing={1} color="text.secondary">
+                            <CalendarTodayIcon fontSize="small" />
+                            <Typography variant="caption" sx={{ fontWeight: 700 }}>
+                              {formatDate(c.created_at)}
+                            </Typography>
+                          </Stack>
+                          <Chip
+                            label="Care Plan Ready"
+                            color="success"
+                            size="small"
+                            sx={{ fontWeight: 800 }}
+                          />
                         </Stack>
-                        <Chip
-                          label="Recommendations Ready"
-                          color="success"
-                          size="small"
-                          sx={{ fontWeight: 700 }}
-                        />
+
+                        <Box sx={{ transform: 'translateZ(15px)' }}>
+                          <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 800, textTransform: 'uppercase', display: 'block', mb: 0.5 }}>
+                            Recorded Symptoms
+                          </Typography>
+                          <Typography variant="body2" color="text.primary" sx={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', minHeight: 40, fontWeight: 500 }}>
+                            {c.symptoms}
+                          </Typography>
+                        </Box>
+
+                        <Stack direction="row" spacing={1.5} sx={{ transform: 'translateZ(25px)' }}>
+                          <Button
+                            fullWidth
+                            variant="contained"
+                            color="primary"
+                            endIcon={<ArrowForwardIcon />}
+                            onClick={() => handleViewCase(c.id, false)}
+                            sx={{ py: 1.4, borderRadius: '10px', fontWeight: 800 }}
+                          >
+                            View Recommendations
+                          </Button>
+                          <Button
+                            variant="outlined"
+                            color="primary"
+                            startIcon={<DownloadIcon />}
+                            onClick={() => handleDownloadCase(c.id)}
+                            sx={{ py: 1.4, borderRadius: '10px', fontWeight: 800, px: 3 }}
+                          >
+                            Download
+                          </Button>
+                        </Stack>
                       </Stack>
-
-                      <Box>
-                        <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 700, textTransform: 'uppercase', display: 'block', mb: 0.5 }}>
-                          Recorded Symptoms
-                        </Typography>
-                        <Typography variant="body2" color="text.primary" sx={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', minHeight: 40 }}>
-                          {c.symptoms}
-                        </Typography>
-                      </Box>
-
-                      <Button
-                        fullWidth
-                        variant="contained"
-                        color="primary"
-                        endIcon={<ArrowForwardIcon />}
-                        onClick={() => handleViewCase(c.id, false)}
-                        sx={{ py: 1.2, borderRadius: '8px' }}
-                      >
-                        View Medication & Diet Recommendations
-                      </Button>
-                    </Stack>
-                  </CardContent>
-                </Card>
+                    </CardContent>
+                  </Card>
+                </TiltCard3D>
               </Grid>
             );
           })}
