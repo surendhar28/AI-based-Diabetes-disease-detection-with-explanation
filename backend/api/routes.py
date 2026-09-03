@@ -89,9 +89,9 @@ def recommend_diet(
 
 
 @router.get("/recommend/alternative")
-def recommend_alternative():
-    herbs, lifestyle_changes = AlternativeMedicineEngine().recommend()
-    return {"herbs": herbs, "lifestyle_changes": lifestyle_changes}
+def recommend_alternative(diagnosis: str = Query("Type 2 Diabetes"), severity: str = Query("moderate")):
+    herbs, lifestyle_changes, physical_activities = AlternativeMedicineEngine().recommend(diagnosis, severity)
+    return {"herbs": herbs, "lifestyle_changes": lifestyle_changes, "physical_activities": physical_activities}
 
 
 import json

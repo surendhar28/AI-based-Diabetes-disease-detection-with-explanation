@@ -116,6 +116,7 @@ class DiabetesPredictionResponse(BaseModel):
     diet: DietPlan
     alternative_medicine: list[AlternativeRecommendation]
     lifestyle_changes: list[dict[str, str | float]]
+    physical_activities: list[dict[str, str | float]] = []
     genai_explanation: GenAIExplanation | None = None
 
 

@@ -17,7 +17,7 @@ class DiabetesCDSSAgent:
     def assess(self, payload: DiabetesPredictionRequest) -> DiabetesPredictionResponse:
         risk_probability, model_used = self.diagnosis_engine.predict_risk(payload)
         diagnosis, severity = self.diagnosis_engine.classify(payload, risk_probability)
-        alternatives, lifestyle_changes = self.alternative_engine.recommend()
+        alternatives, lifestyle_changes, physical_activities = self.alternative_engine.recommend(diagnosis, severity)
         genai_explanation = self.explanation_engine.explain(payload, diagnosis, risk_probability, severity)
         return DiabetesPredictionResponse(
             diagnosis=diagnosis,
@@ -29,6 +29,6 @@ class DiabetesCDSSAgent:
             diet=self.diet_engine.recommend(payload.bmi, payload.glucose, payload.food_preference),
             alternative_medicine=alternatives,
             lifestyle_changes=lifestyle_changes,
+            physical_activities=physical_activities,
             genai_explanation=genai_explanation,
         )
-

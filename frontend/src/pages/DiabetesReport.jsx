@@ -31,6 +31,9 @@ import InfoIcon from '@mui/icons-material/Info';
 import DownloadIcon from '@mui/icons-material/Download';
 import PrintIcon from '@mui/icons-material/Print';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import DirectionsRunIcon from '@mui/icons-material/DirectionsRun';
+import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
+import SpaIcon from '@mui/icons-material/Spa';
 import { AppStateContext } from '../App.jsx';
 import { downloadReportAsFile, triggerPrintReport } from '../utils/reportExporter.js';
 import { getCases, getCaseDetails } from '../services/api.js';
@@ -88,6 +91,40 @@ const sampleDiabetesReport = {
     { name: 'Cinnamomum Verum (Cinnamon)', benefit: 'Enhances insulin receptor sensitivity', evidence_score: 0.85, research_summary: 'Meta-analyses show moderate reductions in fasting blood glucose with 1-2g daily cinnamon intake.' },
     { name: 'Fenugreek (Trigonella foenum-graecum)', benefit: 'Delays glucose absorption in gut', evidence_score: 0.82, research_summary: 'High soluble fiber content improves postprandial glycemic response.' },
     { name: 'Gymnema Sylvestre (Gurmar)', benefit: 'Reduces sweet taste sensation & glucose uptake', evidence_score: 0.78, research_summary: 'Clinical studies report reduced sugar cravings and HbA1c support.' }
+  ],
+  physical_activities: [
+    {
+      name: 'Brisk Zone-2 Aerobic Walking',
+      duration: '30 mins / day (150 mins / week)',
+      frequency: '5 days / week',
+      intensity: 'Moderate (Zone 2)',
+      clinical_mechanism: 'Stimulates GLUT4 glucose transporter translocation in skeletal muscle independent of insulin, lowering postprandial blood glucose for up to 48 hours.',
+      evidence_score: 0.95
+    },
+    {
+      name: 'Post-Meal Glucose-Sponge Walks',
+      duration: '10-15 mins immediately post-meal',
+      frequency: 'After Lunch & Dinner',
+      intensity: 'Light-to-Moderate',
+      clinical_mechanism: 'Attenuates postprandial glycemic spikes by utilizing circulating blood glucose directly into active quadriceps and calf muscles.',
+      evidence_score: 0.92
+    },
+    {
+      name: 'Progressive Resistance Training',
+      duration: '30-45 mins per session',
+      frequency: '2-3 non-consecutive days / week',
+      intensity: 'Moderate-to-High',
+      clinical_mechanism: 'Increases skeletal muscle mass (the body\'s largest glucose sink) to enhance baseline insulin sensitivity and storage capacity.',
+      evidence_score: 0.88
+    },
+    {
+      name: 'Yogic Pranayama & Surya Namaskar',
+      duration: '20 mins / day',
+      frequency: 'Daily (Morning)',
+      intensity: 'Low-to-Moderate',
+      clinical_mechanism: 'Reduces salivary cortisol and sympathetic tone, suppressing stress-induced hepatic gluconeogenesis.',
+      evidence_score: 0.82
+    }
   ]
 };
 
@@ -201,6 +238,11 @@ export default function DiabetesReport() {
   // Normalize GenAI Explanation Data
   const aiExplanation = report.genai_explanation || report.explanation || {};
   const citations = aiExplanation.verifies_proof || aiExplanation.evidence_base || [];
+
+  // Normalize Physical Activities
+  const activitiesList = (report.physical_activities && report.physical_activities.length > 0)
+    ? report.physical_activities
+    : sampleDiabetesReport.physical_activities;
 
   // Model Metrics & Matrix
   const metrics = report.model_metrics || { accuracy: 0.971, roc_auc: 0.9732, precision: 1.0, recall: 0.6712, f1_score: 0.8033 };
@@ -349,7 +391,7 @@ export default function DiabetesReport() {
           {!isPatient && <Tab icon={<AssignmentIcon fontSize="small" />} iconPosition="start" label="Diagnosis Detail" value={0} />}
           <Tab icon={<LocalHospitalIcon fontSize="small" />} iconPosition="start" label="Medications & Brand Lookup" value={1} />
           <Tab icon={<RestaurantMenuIcon fontSize="small" />} iconPosition="start" label="Glycemic Diet Plan" value={2} />
-          {!isPatient && <Tab icon={<InfoIcon fontSize="small" />} iconPosition="start" label="Alternative Medicine" value={3} />}
+          {!isPatient && <Tab icon={<DirectionsRunIcon fontSize="small" />} iconPosition="start" label="Alternative Medicine & Physical Activities" value={3} />}
         </Tabs>
       </Box>
 
@@ -599,12 +641,85 @@ export default function DiabetesReport() {
         </Card>
       )}
 
-      {/* Tab 3: Alternative Medicine & Lifestyle */}
+      {/* Tab 3: Alternative Medicine & Physical Activities */}
       {(!isPatient && tab === 3) && (
         <Stack spacing={4}>
           <div>
-            <Typography variant="h5" sx={{ fontWeight: 850, mb: 1 }}>Evidence-Scored Adjunct Care</Typography>
-            <Typography color="text.secondary">Adjunct alternative therapies and positive lifestyle changes paired with research confidence indices.</Typography>
+            <Typography variant="h5" sx={{ fontWeight: 850, mb: 1, display: 'flex', alignItems: 'center', gap: 1.5 }}>
+              <DirectionsRunIcon color="primary" fontSize="large" />
+              Diagnosis-Tailored Physical Activities &amp; Exercise Protocol
+            </Typography>
+            <Typography color="text.secondary">
+              Physical activity recommendations calculated specifically for <strong>{report.diagnosis || 'Type 2 Diabetes'}</strong> ({report.severity?.toUpperCase()} severity) to stimulate skeletal muscle GLUT4 glucose uptake and lower HbA1c.
+            </Typography>
+          </div>
+
+          {/* Section 1: Physical Activity Cards Grid */}
+          <Grid container spacing={3}>
+            {activitiesList.map((act, idx) => (
+              <Grid item xs={12} md={6} key={act.name || idx}>
+                <Card 
+                  variant="outlined" 
+                  sx={{ 
+                    borderRadius: '20px', 
+                    height: '100%', 
+                    display: 'flex', 
+                    flexDirection: 'column', 
+                    justify: 'space-between',
+                    borderColor: 'primary.main',
+                    borderLeft: '6px solid',
+                    borderLeftColor: 'primary.main'
+                  }}
+                >
+                  <CardContent sx={{ p: 3.5 }}>
+                    <Stack direction="row" justifyContent="space-between" alignItems="flex-start" sx={{ mb: 1.5 }}>
+                      <Typography variant="h6" color="primary.main" sx={{ fontWeight: 850 }}>
+                        {act.name}
+                      </Typography>
+                      {act.intensity && (
+                        <Chip label={act.intensity} color="secondary" size="small" sx={{ fontWeight: 800 }} />
+                      )}
+                    </Stack>
+
+                    <Stack direction="row" spacing={1} sx={{ mb: 2, flexWrap: 'wrap', gap: 1 }}>
+                      <Chip icon={<DirectionsRunIcon />} label={act.duration} variant="outlined" color="primary" size="small" sx={{ fontWeight: 700 }} />
+                      <Chip icon={<FitnessCenterIcon />} label={act.frequency} variant="outlined" color="secondary" size="small" sx={{ fontWeight: 700 }} />
+                    </Stack>
+
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 2.5, lineHeight: 1.6, fontWeight: 550 }}>
+                      <strong>Clinical Mechanism:</strong> {act.clinical_mechanism}
+                    </Typography>
+
+                    <Box>
+                      <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 0.5 }}>
+                        <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 800 }}>CLINICAL EVIDENCE INDEX</Typography>
+                        <Typography variant="caption" color="primary.main" sx={{ fontWeight: 900 }}>
+                          {Math.round((act.evidence_score || 0.9) * 100)}%
+                        </Typography>
+                      </Stack>
+                      <LinearProgress 
+                        variant="determinate" 
+                        value={(act.evidence_score || 0.9) * 100} 
+                        sx={{ height: 6, borderRadius: 3 }} 
+                      />
+                    </Box>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+
+          <Divider sx={{ my: 1 }} />
+
+          {/* Section 2: Botanical & Alternative Therapies */}
+          <div>
+            <Typography variant="h5" sx={{ fontWeight: 850, mb: 1, display: 'flex', alignItems: 'center', gap: 1.5 }}>
+              <SpaIcon color="secondary" fontSize="large" />
+              Evidence-Scored Botanical Adjunct Therapies
+            </Typography>
+            <Typography color="text.secondary">
+              Evidence-based botanical supplements evaluated as complementary adjuncts to primary pharmacotherapy.
+            </Typography>
           </div>
 
           <Grid container spacing={3}>

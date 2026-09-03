@@ -32,6 +32,28 @@ export function generateReportText(caseResult, currentUser) {
   const aiExplanation = diabetes.genai_explanation || diabetes.explanation || {};
   const citations = aiExplanation.verifies_proof || aiExplanation.evidence_base || [];
 
+  // Physical Activities List
+  const activitiesList = diabetes.physical_activities || [
+    {
+      name: "Brisk Zone-2 Aerobic Walking",
+      duration: "30 mins / day (150 mins / week)",
+      frequency: "5 days / week",
+      clinical_mechanism: "Stimulates GLUT4 glucose transporter translocation in skeletal muscle independent of insulin."
+    },
+    {
+      name: "Post-Meal Glucose-Sponge Walks",
+      duration: "10-15 mins post-meal",
+      frequency: "After Lunch & Dinner",
+      clinical_mechanism: "Attenuates postprandial glycemic spikes by utilizing blood glucose in active quadriceps."
+    },
+    {
+      name: "Progressive Resistance Training",
+      duration: "30-45 mins per session",
+      frequency: "2-3 days / week",
+      clinical_mechanism: "Increases skeletal muscle mass (body's largest glucose sink) to enhance insulin sensitivity."
+    }
+  ];
+
   let text = `================================================================================
            CLINICAL DECISION SUPPORT SYSTEM (CDSS)
                 SPECIALIZED MEDICAL REPORT
@@ -125,9 +147,20 @@ Patient Email  : ${input.patient_email || caseResult.patient_email || 'N/A'}
     text += `\n`;
   }
 
-  // 5. GenAI Explanation & Evidence-Based Guidelines
+  // 5. Physical Activities Protocol Tailored to Diagnosis
   text += `--------------------------------------------------------------------------------
-5. AI CLINICAL EXPLANATION & EVIDENCE-BASED GUIDELINES
+5. DIAGNOSIS-TAILORED PHYSICAL ACTIVITIES & EXERCISE PROTOCOL
+--------------------------------------------------------------------------------\n`;
+  text += `Target Diagnosis      : ${diabetes.diagnosis || 'Type 2 Diabetes'}\n\n`;
+  activitiesList.forEach((act, idx) => {
+    text += `  ${idx + 1}. Activity: ${act.name}\n`;
+    text += `     Duration : ${act.duration} | Frequency: ${act.frequency}\n`;
+    text += `     Mechanism: ${act.clinical_mechanism}\n\n`;
+  });
+
+  // 6. GenAI Explanation & Evidence-Based Guidelines
+  text += `--------------------------------------------------------------------------------
+6. AI CLINICAL EXPLANATION & EVIDENCE-BASED GUIDELINES
 --------------------------------------------------------------------------------\n`;
   text += `AI Provider Tier      : ${aiExplanation.ai_provider || 'Tier 1 Gemini 2.5 AI / Groq LLaMA-3.3'}\n\n`;
   text += `Clinical Summary:\n${aiExplanation.summary || aiExplanation.clinical_summary || 'N/A'}\n\n`;

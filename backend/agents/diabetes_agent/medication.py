@@ -71,7 +71,7 @@ class MedicationRecommendationEngine:
         recommendations = data.get(key, data.get("Prediabetes", []))
         
         alt_engine = AlternativeMedicineEngine()
-        all_herbs, _ = alt_engine.recommend(limit=5)
+        all_herbs, _, _ = alt_engine.recommend(diagnosis, severity, limit=5)
         
         results = []
         for item in recommendations:
