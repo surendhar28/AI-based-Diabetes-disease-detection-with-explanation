@@ -12,6 +12,26 @@ export function generateReportText(caseResult, currentUser) {
   const dateStr = new Date().toLocaleString();
   const role = currentUser?.role === 'doctor' ? 'Doctor' : 'Patient';
 
+  // Normalize Medication Data
+  const medList = Array.isArray(diabetes.medication) 
+    ? diabetes.medication 
+    : (diabetes.medications ? [diabetes.medications] : []);
+  const primaryMed = medList[0] || {};
+  const brandsList = primaryMed.brands || diabetes.medications?.commercial_brands || [];
+  const warningsList = primaryMed.warnings || diabetes.medications?.dosage_warnings || [];
+
+  // Normalize Diet Data
+  const dietObj = diabetes.diet || {};
+  const macroBreakdown = dietObj.macro_breakdown || {};
+  const mealsList = Array.isArray(dietObj.meals) 
+    ? dietObj.meals 
+    : (dietObj.meal_plan ? Object.entries(dietObj.meal_plan).map(([k, v]) => ({ time: k, items: Array.isArray(v) ? v.join(', ') : v })) : []);
+  const foodsToAvoid = dietObj.foods_to_avoid || [];
+
+  // Normalize GenAI Explanation Data
+  const aiExplanation = diabetes.genai_explanation || diabetes.explanation || {};
+  const citations = aiExplanation.verifies_proof || aiExplanation.evidence_base || [];
+
   let text = `================================================================================
            CLINICAL DECISION SUPPORT SYSTEM (CDSS)
                 SPECIALIZED MEDICAL REPORT
@@ -54,69 +74,75 @@ Patient Email  : ${input.patient_email || caseResult.patient_email || 'N/A'}
   text += `Heart Disease         : ${input.heart_disease ? 'Yes' : 'No'}\n\n`;
 
   // 3. Medication & Indian Brand Lookup Recommendations
-  if (diabetes.medications) {
-    text += `--------------------------------------------------------------------------------
+  text += `--------------------------------------------------------------------------------
 3. RECOMMENDED MEDICATIONS & COMMERCIAL BRAND LOOKUP
 --------------------------------------------------------------------------------\n`;
-    text += `First-Line Therapy    : ${diabetes.medications.first_line_therapy || 'N/A'}\n`;
-    text += `Clinical Reason       : ${diabetes.medications.reasoning || 'N/A'}\n\n`;
+  text += `First-Line Therapy    : ${primaryMed.medication || primaryMed.first_line_therapy || 'N/A'}\n`;
+  if (primaryMed.dosage) {
+    text += `Prescribed Dosage     : ${primaryMed.dosage}\n`;
+  }
+  text += `Clinical Reason       : ${primaryMed.reasoning || 'N/A'}\n\n`;
 
-    if (diabetes.medications.commercial_brands && diabetes.medications.commercial_brands.length > 0) {
-      text += `Commercial Brands Database Matches (200,000+ Brands Database):\n`;
-      diabetes.medications.commercial_brands.forEach((brand, idx) => {
-        text += `  ${idx + 1}. Brand: ${brand.name} | Mfg: ${brand.manufacturer || 'N/A'}\n`;
-        text += `     Composition  : ${brand.active_composition}\n`;
-        text += `     Packaging    : ${brand.packaging || 'N/A'} | Price: ₹${brand.price_inr || 'N/A'}\n`;
-      });
-      text += `\n`;
-    }
+  if (brandsList.length > 0) {
+    text += `Commercial Brands Database Matches (200,000+ Brands Database):\n`;
+    brandsList.forEach((brand, idx) => {
+      text += `  ${idx + 1}. Brand: ${brand.name} | Mfg: ${brand.manufacturer || 'N/A'}\n`;
+      text += `     Composition  : ${brand.composition || brand.active_composition}\n`;
+      text += `     Packaging    : ${brand.pack_size || brand.packaging || 'N/A'} | Price: ₹${brand.price || brand.price_inr || 'N/A'}\n`;
+    });
+    text += `\n`;
+  }
 
-    if (diabetes.medications.dosage_warnings) {
-      text += `Dosage Warnings & Precautions:\n`;
-      diabetes.medications.dosage_warnings.forEach((warn) => {
-        text += `  - ${warn}\n`;
-      });
-      text += `\n`;
-    }
+  if (warningsList.length > 0) {
+    text += `Dosage Warnings & Precautions:\n`;
+    warningsList.forEach((warn) => {
+      text += `  - ${warn}\n`;
+    });
+    text += `\n`;
   }
 
   // 4. Dietary & Lifestyle Management Plan
-  if (diabetes.diet) {
-    text += `--------------------------------------------------------------------------------
+  text += `--------------------------------------------------------------------------------
 4. PERSONALIZED GLYCEMIC DIET & MEAL PLAN
 --------------------------------------------------------------------------------\n`;
-    text += `Diet Strategy         : ${diabetes.diet.strategy || 'Low Glycemic Index Plan'}\n`;
-    text += `Daily Calorie Target  : ${diabetes.diet.daily_calorie_target || 'N/A'}\n\n`;
+  text += `Daily Calorie Target  : ${dietObj.calories || dietObj.daily_calorie_target || 'N/A'} kcal / day\n`;
+  if (Object.keys(macroBreakdown).length > 0) {
+    text += `Macro Split           : ${Object.entries(macroBreakdown).map(([k, v]) => `${k}: ${v}`).join(', ')}\n\n`;
+  }
 
-    if (diabetes.diet.meal_plan) {
-      text += `Structured Daily Meal Schedule:\n`;
-      Object.entries(diabetes.diet.meal_plan).forEach(([meal, items]) => {
-        text += `  * ${meal.toUpperCase()}:\n`;
-        if (Array.isArray(items)) {
-          items.forEach(i => text += `    - ${i}\n`);
-        } else {
-          text += `    - ${items}\n`;
-        }
-      });
-      text += `\n`;
-    }
+  if (mealsList.length > 0) {
+    text += `Structured Daily Meal Schedule:\n`;
+    mealsList.forEach((meal) => {
+      text += `  * ${(meal.time || 'Meal').toUpperCase()}:\n`;
+      text += `    - ${meal.items}\n`;
+    });
+    text += `\n`;
+  }
+
+  if (foodsToAvoid.length > 0) {
+    text += `Critical Foods to Avoid:\n`;
+    foodsToAvoid.forEach(f => text += `  - ${f}\n`);
+    text += `\n`;
   }
 
   // 5. GenAI Explanation & Evidence-Based Guidelines
-  if (diabetes.explanation) {
-    text += `--------------------------------------------------------------------------------
+  text += `--------------------------------------------------------------------------------
 5. AI CLINICAL EXPLANATION & EVIDENCE-BASED GUIDELINES
 --------------------------------------------------------------------------------\n`;
-    text += `AI Provider Tier      : ${diabetes.explanation.ai_provider || 'Tier 1 Gemini 2.5 AI / Groq LLaMA-3.3'}\n\n`;
-    text += `Clinical Summary:\n${diabetes.explanation.clinical_summary || diabetes.explanation.summary || 'N/A'}\n\n`;
+  text += `AI Provider Tier      : ${aiExplanation.ai_provider || 'Tier 1 Gemini 2.5 AI / Groq LLaMA-3.3'}\n\n`;
+  text += `Clinical Summary:\n${aiExplanation.summary || aiExplanation.clinical_summary || 'N/A'}\n\n`;
 
-    if (diabetes.explanation.evidence_base && diabetes.explanation.evidence_base.length > 0) {
-      text += `Verified Guideline Citations:\n`;
-      diabetes.explanation.evidence_base.forEach(cite => {
-        text += `  [✓] ${cite}\n`;
-      });
-      text += `\n`;
-    }
+  if (aiExplanation.detailed_analysis) {
+    text += `Detailed Analysis:\n${aiExplanation.detailed_analysis}\n\n`;
+  }
+
+  if (citations.length > 0) {
+    text += `Verified Guideline Citations:\n`;
+    citations.forEach(cite => {
+      const citeText = typeof cite === 'string' ? cite : `${cite.source || 'Guideline'}: ${cite.fact || cite.clinical_notes}`;
+      text += `  [✓] ${citeText}\n`;
+    });
+    text += `\n`;
   }
 
   text += `================================================================================
