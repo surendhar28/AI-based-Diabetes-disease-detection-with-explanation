@@ -125,10 +125,11 @@ def create_case(payload: CaseCreate, user: CurrentUser = Depends(get_current_use
     with get_connection() as conn:
         conn.execute(
             """
-            INSERT INTO patient_cases (patient_email, doctor_email, symptoms, labs, general_prediction, diabetes_prediction, created_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO patient_cases (patient_name, patient_email, doctor_email, symptoms, labs, general_prediction, diabetes_prediction, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
+                payload.patient_name,
                 patient_email,
                 user.email if user.role == "doctor" else None,
                 payload.symptoms,
@@ -167,6 +168,7 @@ def list_cases(patient_email: str | None = None, user: CurrentUser = Depends(get
     for r in rows:
         case_data = {
             "id": r["id"],
+            "patient_name": r["patient_name"] if "patient_name" in r.keys() else None,
             "patient_email": r["patient_email"],
             "doctor_email": r["doctor_email"],
             "symptoms": r["symptoms"],
@@ -212,6 +214,7 @@ def get_case(case_id: int, user: CurrentUser = Depends(get_current_user)):
         
     case_data = {
         "id": r["id"],
+        "patient_name": r["patient_name"] if "patient_name" in r.keys() else None,
         "patient_email": r["patient_email"],
         "doctor_email": r["doctor_email"],
         "symptoms": r["symptoms"],

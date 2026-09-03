@@ -25,6 +25,7 @@ import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import SearchIcon from '@mui/icons-material/Search';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import EmailIcon from '@mui/icons-material/Email';
+import PersonIcon from '@mui/icons-material/Person';
 import DownloadIcon from '@mui/icons-material/Download';
 import PrintIcon from '@mui/icons-material/Print';
 import { AppStateContext } from '../App.jsx';
@@ -63,7 +64,7 @@ export default function PatientRecords() {
       setCaseResult({
         general: details.general_prediction,
         diabetes: details.diabetes_prediction,
-        input: { ...details.labs, symptoms: details.symptoms },
+        input: { ...details.labs, symptoms: details.symptoms, patient_name: details.patient_name, patient_email: details.patient_email },
       });
 
       if (isDoctor) {
@@ -84,7 +85,7 @@ export default function PatientRecords() {
       const formattedResult = {
         general: details.general_prediction,
         diabetes: details.diabetes_prediction,
-        input: { ...details.labs, symptoms: details.symptoms, patient_email: details.patient_email },
+        input: { ...details.labs, symptoms: details.symptoms, patient_name: details.patient_name, patient_email: details.patient_email },
       };
       downloadReportAsFile(formattedResult, currentUser);
     } catch (err) {
@@ -94,6 +95,7 @@ export default function PatientRecords() {
 
   const filteredCases = cases.filter(
     (c) =>
+      (c.patient_name && c.patient_name.toLowerCase().includes(search.toLowerCase())) ||
       c.patient_email.toLowerCase().includes(search.toLowerCase()) ||
       c.symptoms.toLowerCase().includes(search.toLowerCase())
   );
@@ -131,7 +133,7 @@ export default function PatientRecords() {
         </Typography>
         <Typography color="text.secondary">
           {isDoctor
-            ? 'Track past symptom assessments, lab parameters, and download generated AI diagnostic reports.'
+            ? 'Track patient names, symptom assessments, lab parameters, and download generated AI diagnostic reports.'
             : 'Access and download personalized diet plans and medication guidelines prepared by your medical providers.'}
         </Typography>
       </div>
@@ -146,7 +148,7 @@ export default function PatientRecords() {
         <TextField
           fullWidth
           variant="outlined"
-          placeholder="Search by patient email or symptoms..."
+          placeholder="Search by patient name, email, or symptoms..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           InputProps={{
@@ -176,7 +178,7 @@ export default function PatientRecords() {
             <TableHead sx={{ bgcolor: (theme) => theme.palette.mode === 'light' ? '#f9fafb' : 'rgba(255,255,255,0.02)' }}>
               <TableRow>
                 <TableCell sx={{ fontWeight: 800 }}>Date Created</TableCell>
-                <TableCell sx={{ fontWeight: 800 }}>Patient Email</TableCell>
+                <TableCell sx={{ fontWeight: 800 }}>Patient Identity</TableCell>
                 <TableCell sx={{ fontWeight: 800 }}>Symptoms Brief</TableCell>
                 <TableCell sx={{ fontWeight: 800 }}>Diabetes Screen</TableCell>
                 <TableCell sx={{ fontWeight: 800 }} align="right">Actions &amp; Downloads</TableCell>
@@ -189,12 +191,22 @@ export default function PatientRecords() {
                   <TableRow key={c.id} hover>
                     <TableCell sx={{ fontWeight: 600 }}>{formatDate(c.created_at)}</TableCell>
                     <TableCell>
-                      <Stack direction="row" alignItems="center" spacing={1}>
-                        <EmailIcon fontSize="small" color="action" />
-                        <Typography variant="body2" sx={{ fontWeight: 650 }}>{c.patient_email}</Typography>
+                      <Stack spacing={0.5}>
+                        <Stack direction="row" alignItems="center" spacing={0.75}>
+                          <PersonIcon fontSize="small" color="primary" />
+                          <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>
+                            {c.patient_name || 'Patient'}
+                          </Typography>
+                        </Stack>
+                        <Stack direction="row" alignItems="center" spacing= {0.75}>
+                          <EmailIcon style={{ fontSize: 14 }} color="action" />
+                          <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
+                            {c.patient_email}
+                          </Typography>
+                        </Stack>
                       </Stack>
                     </TableCell>
-                    <TableCell sx={{ maxWidth: 280, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    <TableCell sx={{ maxWidth: 260, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {c.symptoms}
                     </TableCell>
                     <TableCell>
@@ -215,7 +227,7 @@ export default function PatientRecords() {
                           onClick={() => handleDownloadCase(c.id)}
                           sx={{ borderRadius: '8px', fontWeight: 700 }}
                         >
-                          Download Report
+                          Download
                         </Button>
                         <Button
                           size="small"
@@ -261,7 +273,10 @@ export default function PatientRecords() {
 
                         <Box sx={{ transform: 'translateZ(15px)' }}>
                           <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 800, textTransform: 'uppercase', display: 'block', mb: 0.5 }}>
-                            Recorded Symptoms
+                            Patient Name &amp; Symptoms
+                          </Typography>
+                          <Typography variant="subtitle2" sx={{ fontWeight: 850, color: 'primary.main', mb: 0.5 }}>
+                            {c.patient_name || 'Patient'} ({c.patient_email})
                           </Typography>
                           <Typography variant="body2" color="text.primary" sx={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', minHeight: 40, fontWeight: 500 }}>
                             {c.symptoms}

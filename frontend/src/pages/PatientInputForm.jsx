@@ -18,13 +18,13 @@ import BiotechIcon from '@mui/icons-material/Biotech';
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import AnalyticsIcon from '@mui/icons-material/Analytics';
 import RestoreIcon from '@mui/icons-material/Restore';
-import ViewInArIcon from '@mui/icons-material/ViewInAr';
 import { AppStateContext } from '../App.jsx';
 import TiltCard3D from '../components/TiltCard3D.jsx';
 import { predictDiabetes, predictGeneral, saveCase } from '../services/api.js';
 
 const initialForm = {
-  patient_email: '',
+  patient_name: 'John Doe',
+  patient_email: 'john.doe@example.com',
   symptoms: 'fatigue, excessive thirst, frequent urination, blurred vision',
   age: 52,
   gender: 'male',
@@ -109,8 +109,9 @@ export default function PatientInputForm() {
         });
       }
 
-      // Save case report to DB
+      // Save case report to DB with patient_name
       await saveCase({
+        patient_name: form.patient_name,
         patient_email: form.patient_email,
         symptoms: form.symptoms,
         labs,
@@ -135,7 +136,7 @@ export default function PatientInputForm() {
               3D Patient Intake Portal
             </Typography>
             <Typography color="text.secondary">
-              Capture symptoms and lab values with interactive 3D perspective screening.
+              Capture patient identity, symptoms, and lab values for screening.
             </Typography>
           </div>
           <Button 
@@ -173,16 +174,24 @@ export default function PatientInputForm() {
         </TiltCard3D>
 
         <Grid container spacing={3.5}>
-          {/* 2. Demographics & History Card with 3D Tilt */}
+          {/* 2. Demographics & Patient Details Card */}
           <Grid item xs={12} md={5}>
             <TiltCard3D color="#a78bfa" sx={{ height: '100%' }}>
               <Card variant="outlined" sx={{ height: '100%', borderRadius: '20px' }}>
                 <CardContent sx={{ p: 3.5, transformStyle: 'preserve-3d' }}>
                   <Typography variant="h6" color="secondary.main" sx={{ mb: 2.5, display: 'flex', alignItems: 'center', gap: 1, fontWeight: 750, transform: 'translateZ(20px)' }}>
                     <PersonOutlineIcon />
-                    2. Demographics &amp; History
+                    2. Patient Identity &amp; Demographics
                   </Typography>
                   <Stack spacing={2.5} sx={{ transform: 'translateZ(15px)' }}>
+                    <TextField
+                      fullWidth
+                      label="Patient Full Name"
+                      placeholder="e.g. John Doe / Sarah Smith"
+                      value={form.patient_name}
+                      onChange={update('patient_name')}
+                      required
+                    />
                     <TextField
                       fullWidth
                       type="email"
@@ -241,7 +250,7 @@ export default function PatientInputForm() {
             </TiltCard3D>
           </Grid>
 
-          {/* 3. Laboratory Measurements Card with 3D Tilt */}
+          {/* 3. Laboratory Measurements Card */}
           <Grid item xs={12} md={7}>
             <TiltCard3D color="#f59e0b" sx={{ height: '100%' }}>
               <Card variant="outlined" sx={{ height: '100%', borderRadius: '20px' }}>

@@ -60,7 +60,6 @@ def init_db() -> None:
             """
         )
         
-        # Ensure role column exists if users was already created without it
         cursor = conn.cursor()
         cursor.execute("PRAGMA table_info(users)")
         columns = [row[1] for row in cursor.fetchall()]
@@ -71,6 +70,7 @@ def init_db() -> None:
             """
             CREATE TABLE IF NOT EXISTS patient_cases (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
+                patient_name TEXT,
                 patient_email TEXT NOT NULL,
                 doctor_email TEXT,
                 symptoms TEXT NOT NULL,
@@ -82,6 +82,12 @@ def init_db() -> None:
             )
             """
         )
+        
+        cursor.execute("PRAGMA table_info(patient_cases)")
+        case_columns = [row[1] for row in cursor.fetchall()]
+        if "patient_name" not in case_columns:
+            conn.execute("ALTER TABLE patient_cases ADD COLUMN patient_name TEXT")
+
         conn.execute("CREATE INDEX IF NOT EXISTS idx_patient_cases_email ON patient_cases(patient_email)")
         conn.execute(
             """

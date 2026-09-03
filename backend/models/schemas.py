@@ -119,7 +119,6 @@ class DiabetesPredictionResponse(BaseModel):
     genai_explanation: GenAIExplanation | None = None
 
 
-
 class UserCreate(BaseModel):
     email: str
     password: str = Field(min_length=8)
@@ -138,6 +137,7 @@ class AuthResponse(BaseModel):
 
 
 class CaseCreate(BaseModel):
+    patient_name: str | None = None
     patient_email: str
     symptoms: str
     labs: dict

@@ -18,6 +18,7 @@ export function generateReportText(caseResult, currentUser) {
 ================================================================================
 Generated Date : ${dateStr}
 Requested By   : ${currentUser?.full_name || 'User'} (${role})
+Patient Name   : ${input.patient_name || caseResult.patient_name || 'N/A'}
 Patient Email  : ${input.patient_email || caseResult.patient_email || 'N/A'}
 ================================================================================\n\n`;
 
