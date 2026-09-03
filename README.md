@@ -346,63 +346,118 @@ sequenceDiagram
 
 ## 🗄️ Database Entity-Relationship (ER) Model
 
-The application uses an optimized **SQLite database operating in Write-Ahead Logging (WAL) Mode** (`PRAGMA journal_mode=WAL`, `PRAGMA foreign_keys=ON`) for high-concurrency read/write throughput, instant ACID compliance, and low latency.
+The application utilizes a multi-table, highly concurrent **SQLite database running in Write-Ahead Logging (WAL) Mode** (`PRAGMA journal_mode=WAL`, `PRAGMA foreign_keys=ON`). This architecture delivers sub-millisecond query performance, instant ACID transaction safety, and non-blocking read/write operations during multi-agent inference runs.
 
 ```mermaid
 erDiagram
     USERS {
-        int id PK "Primary Key (Auto-Increment)"
-        string email UK "Unique User Email Address"
-        string full_name "User Full Name"
-        string password_hash "PBKDF2-HMAC-SHA256 Password Hash"
-        string role "doctor | patient (Default: patient)"
-        string created_at "ISO-8601 UTC Timestamp"
+        INTEGER id PK "Auto-Increment Primary Key"
+        TEXT email UK "Unique User Email Address (Login Identifier)"
+        TEXT full_name "Full User Name (e.g. Dr. Full Flow)"
+        TEXT password_hash "PBKDF2-HMAC-SHA256 Hash (120,000 Iterations)"
+        TEXT role "Role Flag ('doctor' | 'patient')"
+        TEXT created_at "ISO-8601 UTC Timestamp"
     }
     
     PATIENT_CASES {
-        int id PK "Primary Key (Auto-Increment)"
-        string patient_name "Patient Full Name (e.g., Sarah Connor)"
-        string patient_email FK "References USERS.email (Indexed)"
-        string doctor_email "Email of attending doctor"
-        string symptoms "Symptom narrative input string"
-        string labs "JSON: Glucose, HbA1c, BP, BMI, Insulin, etc."
-        string general_prediction "JSON: Multi-disease symptom probabilities"
-        string diabetes_prediction "JSON: XGBoost risk, meds, diet, exercises, AI reasoning"
-        string created_at "ISO-8601 UTC Timestamp"
+        INTEGER id PK "Auto-Increment Primary Key"
+        TEXT patient_name "Full Name of Patient (e.g. Sarah Connor)"
+        TEXT patient_email FK "References USERS.email (Indexed)"
+        TEXT doctor_email "Email of Attending Clinician"
+        TEXT symptoms "Free-text Symptom Narrative Input"
+        TEXT labs "JSON Object: Glucose, HbA1c, BP, BMI, Insulin, etc."
+        TEXT general_prediction "JSON Object: Candidate Disease Probabilities"
+        TEXT diabetes_prediction "JSON Object: XGBoost Risk, Meds, Diet, Physical Activities, Gemini AI"
+        TEXT created_at "ISO-8601 UTC Timestamp"
     }
     
     PREDICTION_EVENTS {
-        int id PK "Primary Key (Auto-Increment)"
-        string user_email "Audited Actor Email Address"
-        string event_type "general_prediction | diabetes_prediction | case_save"
-        string payload "JSON Audit Event Snapshot Data"
-        string created_at "ISO-8601 UTC Timestamp"
+        INTEGER id PK "Auto-Increment Primary Key"
+        TEXT user_email "Audited Actor Email Address"
+        TEXT event_type "Event Type ('general_prediction' | 'diabetes_prediction' | 'case_save')"
+        TEXT payload "JSON Audit Snapshot Payload"
+        TEXT created_at "ISO-8601 UTC Timestamp"
     }
     
     MEDICINES {
-        int id PK "Primary Key (Auto-Increment)"
-        string name "Indian Commercial Brand Name"
-        real price "Price in Indian Rupees (₹)"
-        int is_discontinued "Active manufacturing status flag (0 = Active)"
-        string manufacturer_name "Pharma Manufacturer Name"
-        string type "Tablet, Capsule, Injection, Syrup"
-        string pack_size_label "Packaging specification label"
-        string short_composition1 "Primary active chemical composition (Indexed)"
-        string short_composition2 "Secondary active chemical composition (Indexed)"
+        INTEGER id PK "Auto-Increment Primary Key"
+        TEXT name "Indian Commercial Brand Name"
+        REAL price "Retail Price in Indian Rupees (₹)"
+        INTEGER is_discontinued "Active Discontinuation Status (0 = Active)"
+        TEXT manufacturer_name "Pharmaceutical Manufacturer"
+        TEXT type "Formulation Type (Tablet, Capsule, Syrup, Injection)"
+        TEXT pack_size_label "Packaging Specification Label"
+        TEXT short_composition1 "Primary Active Chemical Compound (Indexed B-Tree)"
+        TEXT short_composition2 "Secondary Active Chemical Compound (Indexed B-Tree)"
     }
 
-    USERS ||--o{ PATIENT_CASES : "owns / consults"
-    USERS ||--o{ PREDICTION_EVENTS : "triggers audit event"
-    PATIENT_CASES }|..|{ MEDICINES : "cross-references brand compounds"
+    USERS ||--o{ PATIENT_CASES : "1:N Patient Consultation History"
+    USERS ||--o{ PREDICTION_EVENTS : "1:N Audit Activity Tracking"
+    PATIENT_CASES }|..|{ MEDICINES : "N:M Commercial Drug Brand Lookup"
 ```
 
-### 📋 Database Table Specifications
+---
 
-1. **`users` Table:** Stores user credentials, hashed passwords, full names, and system roles (`doctor` vs `patient`).
-2. **`patient_cases` Table:** Stores complete intake records including `patient_name`, `patient_email`, attending `doctor_email`, symptoms, laboratory measurements JSON (`glucose`, `hba1c_level`, `blood_pressure`, `bmi`, `insulin`, `skin_thickness`, etc.), general symptom classifier predictions JSON, and specialist diabetes CDSS predictions JSON (XGBoost risk score, 200k+ Indian pharma brand matches, diagnosis-dynamic glycemic diet plan, diagnosis-tailored physical activities, and Gemini 2.5 AI clinical explanations).
-3. **`prediction_events` Table:** Immutable audit log tracking prediction API calls, login events, and report exports with timestamps and user email context.
-4. **`medicines` Table:** Indexed database of **200,000+ Indian commercial pharmaceutical brand formulations** (`A_Z_medicines_dataset_of_India.csv`), supporting fast SQL wildcard matches on active chemical compositions (`short_composition1`, `short_composition2`).
-```
+### 📋 Comprehensive Database Schema & Field Reference
+
+#### 1. `users` Table (Authentication & Access Roles)
+
+| Column Name | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | `INTEGER` | `PRIMARY KEY AUTOINCREMENT` | Unique auto-incrementing user identity ID |
+| `email` | `TEXT` | `UNIQUE NOT NULL` | Login identifier email address |
+| `full_name` | `TEXT` | `NOT NULL` | Registered practitioner or patient full name |
+| `password_hash` | `TEXT` | `NOT NULL` | Cryptographic `PBKDF2-HMAC-SHA256` password hash |
+| `role` | `TEXT` | `NOT NULL DEFAULT 'patient'` | Access control role (`doctor` or `patient`) |
+| `created_at` | `TEXT` | `NOT NULL` | Account registration timestamp (`ISO-8601`) |
+
+#### 2. `patient_cases` Table (Clinical Intake & Specialist Diagnoses)
+
+| Column Name | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | `INTEGER` | `PRIMARY KEY AUTOINCREMENT` | Unique consultation case record ID |
+| **`patient_name`** | `TEXT` | `NULLABLE` | **Full Name of intake patient (e.g. John Doe / Sarah Smith)** |
+| `patient_email` | `TEXT` | `NOT NULL, FK -> users.email` | **Indexed** patient email identifier |
+| `doctor_email` | `TEXT` | `NULLABLE` | Email address of attending clinician |
+| `symptoms` | `TEXT` | `NOT NULL` | Free-text clinical symptom intake narrative |
+| `labs` | `TEXT` | `NOT NULL (JSON)` | Serialized vitals (`glucose`, `hba1c_level`, `bmi`, `blood_pressure`, `insulin`, etc.) |
+| `general_prediction` | `TEXT` | `NULLABLE (JSON)` | Multi-disease symptom probabilities output |
+| `diabetes_prediction` | `TEXT` | `NULLABLE (JSON)` | Full CDSS output: XGBoost risk score, Indian brand matches, glycemic diet plan, physical activities & Gemini 2.5 AI reasoning |
+| `created_at` | `TEXT` | `NOT NULL` | Intake submission timestamp (`ISO-8601`) |
+
+#### 3. `prediction_events` Table (System Security Audit Log)
+
+| Column Name | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | `INTEGER` | `PRIMARY KEY AUTOINCREMENT` | Unique audit log entry ID |
+| `user_email` | `TEXT` | `NULLABLE` | Email context of triggering actor |
+| `event_type` | `TEXT` | `NOT NULL` | Audit event classification code |
+| `payload` | `TEXT` | `NOT NULL (JSON)` | Immutable snapshot of request/response payload |
+| `created_at` | `TEXT` | `NOT NULL` | Audit log creation timestamp (`ISO-8601`) |
+
+#### 4. `medicines` Table (200,000+ Indian Commercial Pharma Database)
+
+| Column Name | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | `INTEGER` | `PRIMARY KEY` | National medicine dataset record ID |
+| `name` | `TEXT` | `NOT NULL` | Commercial brand name in Indian pharmacy registry |
+| `price` | `REAL` | `NULLABLE` | Retail price in Indian Rupees (₹) |
+| `is_discontinued` | `INTEGER` | `DEFAULT 0` | Discontinuation status flag (`0 = Active`) |
+| `manufacturer_name` | `TEXT` | `NULLABLE` | Pharmaceutical manufacturing company |
+| `type` | `TEXT` | `NULLABLE` | Formulation dosage form (Tablet, Capsule, etc.) |
+| `pack_size_label` | `TEXT` | `NULLABLE` | Packaging packaging quantity label |
+| `short_composition1` | `TEXT` | `INDEXED` | **B-Tree Indexed** primary chemical compound |
+| `short_composition2` | `TEXT` | `INDEXED` | **B-Tree Indexed** secondary chemical compound |
+
+---
+
+### ⚡ Performance Indices & Pragmas
+
+- **SQLite Write-Ahead Logging:** Configured via `PRAGMA journal_mode=WAL` to allow concurrent readers while a write transaction is active.
+- **Foreign Key Constraints:** Enforced via `PRAGMA foreign_keys=ON`.
+- **B-Tree Indexes:**
+  - `idx_patient_cases_email`: Accelerates patient case lookup queries (`SELECT * FROM patient_cases WHERE patient_email = ?`).
+  - `idx_medicines_comp1` & `idx_medicines_comp2`: Fast SQL wildcard search for Indian brand drug matching (`WHERE short_composition1 LIKE '%Metformin%'`).
 
 ---
 
