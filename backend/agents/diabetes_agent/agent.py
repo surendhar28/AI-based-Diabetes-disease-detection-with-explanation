@@ -26,7 +26,7 @@ class DiabetesCDSSAgent:
             model_used=model_used,
             model_metrics=self.diagnosis_engine.metrics(),
             medication=self.medication_engine.recommend(diagnosis, severity),
-            diet=self.diet_engine.recommend(payload.bmi, payload.glucose, payload.food_preference),
+            diet=self.diet_engine.recommend(payload.bmi, payload.glucose, payload.food_preference, diagnosis),
             alternative_medicine=alternatives,
             lifestyle_changes=lifestyle_changes,
             physical_activities=physical_activities,

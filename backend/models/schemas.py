@@ -85,6 +85,7 @@ class MedicationRecommendation(BaseModel):
 
 
 class DietPlan(BaseModel):
+    strategy: str = "Low Glycemic Index Plan"
     calories: int
     macro_breakdown: dict[str, str]
     meals: list[dict[str, str]]

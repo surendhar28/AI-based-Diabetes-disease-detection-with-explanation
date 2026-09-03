@@ -84,8 +84,9 @@ def recommend_diet(
     bmi: float = Query(..., ge=0),
     glucose: float = Query(..., ge=0),
     food_preference: FoodPreference = Query("veg"),
+    diagnosis: str = Query("Type 2 Diabetes"),
 ):
-    return DietRecommendationEngine().recommend(bmi, glucose, food_preference)
+    return DietRecommendationEngine().recommend(bmi, glucose, food_preference, diagnosis)
 
 
 @router.get("/recommend/alternative")

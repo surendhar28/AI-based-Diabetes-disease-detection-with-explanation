@@ -594,11 +594,12 @@ export default function DiabetesReport() {
         <Card variant="outlined" sx={{ borderRadius: '20px' }}>
           <CardContent sx={{ p: { xs: 3, md: 4 } }}>
             <Typography variant="h6" color="primary.main" sx={{ fontWeight: 850, mb: 1 }}>
-              Glycemic Index Meal Plan Strategy
+              {dietObj.strategy || "Low Glycemic Index Meal Plan Strategy"}
             </Typography>
-            <Typography variant="h5" sx={{ fontWeight: 850, mb: 3 }}>
-              Target Calories: {dietObj.calories || dietObj.daily_calorie_target || '1,650'} kcal / day
-            </Typography>
+            <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: 3, flexWrap: 'wrap', gap: 1 }}>
+              <Chip label={`Daily Target: ${dietObj.calories || dietObj.daily_calorie_target || '1,650'} kcal / day`} color="primary" sx={{ fontWeight: 800 }} />
+              <Chip label={`Tailored for: ${report.diagnosis || 'Type 2 Diabetes'}`} color="secondary" variant="outlined" sx={{ fontWeight: 800 }} />
+            </Stack>
 
             <Grid container spacing={2.5} sx={{ mb: 4 }}>
               {Object.entries(macroBreakdown).map(([k, v]) => (

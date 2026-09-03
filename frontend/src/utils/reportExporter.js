@@ -127,6 +127,8 @@ Patient Email  : ${input.patient_email || caseResult.patient_email || 'N/A'}
   text += `--------------------------------------------------------------------------------
 4. PERSONALIZED GLYCEMIC DIET & MEAL PLAN
 --------------------------------------------------------------------------------\n`;
+  text += `Diet Strategy         : ${dietObj.strategy || 'Low Glycemic Index Protocol'}\n`;
+  text += `Target Diagnosis      : ${diabetes.diagnosis || 'Type 2 Diabetes'}\n`;
   text += `Daily Calorie Target  : ${dietObj.calories || dietObj.daily_calorie_target || 'N/A'} kcal / day\n`;
   if (Object.keys(macroBreakdown).length > 0) {
     text += `Macro Split           : ${Object.entries(macroBreakdown).map(([k, v]) => `${k}: ${v}`).join(', ')}\n\n`;
