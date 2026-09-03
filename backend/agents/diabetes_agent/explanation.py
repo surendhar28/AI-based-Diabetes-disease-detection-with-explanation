@@ -7,9 +7,12 @@ from models.schemas import GenAIExplanation, VerifiedProof
 
 class DiabetesExplanationEngine:
     def __init__(self) -> None:
-        self.api_key = os.getenv("GROQ_API_KEY", "")
-        self.endpoint = "https://api.groq.com/openai/v1/chat/completions"
-        self.model = "llama-3.3-70b-versatile"
+        self.gemini_key = os.getenv("GEMINI_API_KEY", "")
+        self.gemini_endpoint = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={self.gemini_key}" if self.gemini_key else ""
+        
+        self.groq_key = os.getenv("GROQ_API_KEY", "")
+        self.groq_endpoint = "https://api.groq.com/openai/v1/chat/completions"
+        self.groq_model = "llama-3.3-70b-versatile"
 
     def explain(
         self,
@@ -18,9 +21,6 @@ class DiabetesExplanationEngine:
         risk_probability: float,
         severity: str,
     ) -> GenAIExplanation:
-        if not self.api_key:
-            return self._local_fallback(payload, diagnosis, risk_probability, severity)
-
         system_prompt = (
             "You are an expert Clinical Decision Support System (CDSS) AI specialized in endocrinology and diabetes care. "
             "Your task is to analyze patient metrics and a machine learning model's prediction risk, "
@@ -33,7 +33,7 @@ class DiabetesExplanationEngine:
             "    {\n"
             "      \"source\": \"Specific reference (e.g., 'ADA Guidelines 2024 - Section 2')\",\n"
             "      \"fact\": \"The specific diagnostic guideline or fact (e.g., 'Fasting glucose >= 126 mg/dL indicates diabetes')\",\n"
-            "      \"relevance_score\": 0.95, // Float between 0.0 and 1.0 indicating relevance to this specific patient's state\n"
+            "      \"relevance_score\": 0.95,\n"
             "      \"clinical_notes\": \"Brief clinical notes connecting this guideline fact to the patient's metrics\"\n"
             "    }\n"
             "  ]\n"
@@ -58,48 +58,101 @@ class DiabetesExplanationEngine:
             f"- Alert Severity Level: {severity}\n"
         )
 
-        headers = {
-            "Authorization": f"Bearer {self.api_key}",
-            "Content-Type": "application/json"
-        }
+        # ----------------------------------------------------
+        # TIER 1: Gemini API (Primary Provider)
+        # ----------------------------------------------------
+        if self.gemini_key:
+            try:
+                gemini_payload = {
+                    "contents": [
+                        {
+                            "parts": [
+                                {"text": system_prompt + "\n\n" + user_content}
+                            ]
+                        }
+                    ],
+                    "generationConfig": {
+                        "responseMimeType": "application/json",
+                        "temperature": 0.1
+                    }
+                }
+                print("[AI Engine] Triggering Tier 1 AI: Google Gemini API (gemini-2.5-flash)...")
+                with httpx.Client(timeout=12.0) as client:
+                    response = client.post(self.gemini_endpoint, json=gemini_payload)
+                    if response.status_code == 200:
+                        data = response.json()
+                        raw_text = data["candidates"][0]["content"]["parts"][0]["text"]
+                        result = json.loads(raw_text)
+                        
+                        proofs = []
+                        for proof in result.get("verifies_proof", []):
+                            proofs.append(VerifiedProof(
+                                source=proof.get("source", "Medical Guideline"),
+                                fact=proof.get("fact", ""),
+                                relevance_score=float(proof.get("relevance_score", 0.5)),
+                                clinical_notes=proof.get("clinical_notes")
+                            ))
+                        print("[AI Engine] Tier 1 Gemini explanation successfully generated!")
+                        return GenAIExplanation(
+                            summary=result.get("summary", ""),
+                            detailed_analysis=result.get("detailed_analysis", ""),
+                            verifies_proof=proofs
+                        )
+                    else:
+                        print(f"[AI Engine] Tier 1 Gemini error (status code {response.status_code}): {response.text}")
+            except Exception as exc:
+                print(f"[AI Engine] Exception calling Tier 1 Gemini API: {exc}")
 
-        request_body = {
-            "model": self.model,
-            "messages": [
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_content}
-            ],
-            "response_format": {"type": "json_object"},
-            "temperature": 0.1
-        }
+        # ----------------------------------------------------
+        # TIER 2: Groq API (Secondary Fallback Provider)
+        # ----------------------------------------------------
+        if self.groq_key:
+            try:
+                headers = {
+                    "Authorization": f"Bearer {self.groq_key}",
+                    "Content-Type": "application/json"
+                }
 
-        try:
-            # Short timeout of 5.0 seconds to keep the API fast and responsive
-            with httpx.Client(timeout=5.0) as client:
-                response = client.post(self.endpoint, headers=headers, json=request_body)
-                if response.status_code == 200:
-                    data = response.json()
-                    content = data["choices"][0]["message"]["content"]
-                    result = json.loads(content)
-                    
-                    proofs = []
-                    for proof in result.get("verifies_proof", []):
-                        proofs.append(VerifiedProof(
-                            source=proof.get("source", "Medical Guideline"),
-                            fact=proof.get("fact", ""),
-                            relevance_score=float(proof.get("relevance_score", 0.5)),
-                            clinical_notes=proof.get("clinical_notes")
-                        ))
-                    return GenAIExplanation(
-                        summary=result.get("summary", ""),
-                        detailed_analysis=result.get("detailed_analysis", ""),
-                        verifies_proof=proofs
-                    )
-                else:
-                    print(f"Groq API error (status code {response.status_code}): {response.text}")
-        except Exception as exc:
-            print(f"Exception calling Groq API: {exc}")
+                request_body = {
+                    "model": self.groq_model,
+                    "messages": [
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": user_content}
+                    ],
+                    "response_format": {"type": "json_object"},
+                    "temperature": 0.1
+                }
+                print("[AI Engine] Triggering Tier 2 AI: Groq Cloud LLaMA-3.3...")
+                with httpx.Client(timeout=8.0) as client:
+                    response = client.post(self.groq_endpoint, headers=headers, json=request_body)
+                    if response.status_code == 200:
+                        data = response.json()
+                        content = data["choices"][0]["message"]["content"]
+                        result = json.loads(content)
+                        
+                        proofs = []
+                        for proof in result.get("verifies_proof", []):
+                            proofs.append(VerifiedProof(
+                                source=proof.get("source", "Medical Guideline"),
+                                fact=proof.get("fact", ""),
+                                relevance_score=float(proof.get("relevance_score", 0.5)),
+                                clinical_notes=proof.get("clinical_notes")
+                            ))
+                        print("[AI Engine] Tier 2 Groq explanation successfully generated!")
+                        return GenAIExplanation(
+                            summary=result.get("summary", ""),
+                            detailed_analysis=result.get("detailed_analysis", ""),
+                            verifies_proof=proofs
+                        )
+                    else:
+                        print(f"[AI Engine] Tier 2 Groq API error (status code {response.status_code}): {response.text}")
+            except Exception as exc:
+                print(f"[AI Engine] Exception calling Tier 2 Groq API: {exc}")
 
+        # ----------------------------------------------------
+        # TIER 3: Local Rule Engine (Emergency Fallback)
+        # ----------------------------------------------------
+        print("[AI Engine] Tier 1 & Tier 2 unavailable. Triggering Tier 3 Local Rule Engine...")
         return self._local_fallback(payload, diagnosis, risk_probability, severity)
 
     def _local_fallback(
@@ -119,8 +172,7 @@ class DiabetesExplanationEngine:
         # Build Summary
         summary = (
             f"Predicted classification: {diagnosis} ({severity} alert level) with a model-assessed "
-            f"diabetes risk probability of {risk_probability:.1%}. This assessment is driven by blood "
-            f"glucose of {glucose} mg/dL and estimated HbA1c of {hba1c}%."
+            f"diabetes risk probability of {risk_probability:.1%}."
         )
         
         # Build Detailed Analysis
@@ -178,7 +230,6 @@ class DiabetesExplanationEngine:
                 clinical_notes=f"Fasting glucose of {glucose} mg/dL is within the normal reference range."
             ))
             
-        # Standard lifestyle/BMI proof
         if payload.bmi >= 25.0:
             proofs.append(VerifiedProof(
                 source="World Health Organization (WHO) Obesity Guidelines",
