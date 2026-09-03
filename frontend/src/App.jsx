@@ -7,7 +7,11 @@ import PatientInputForm from './pages/PatientInputForm.jsx';
 import ResultsPage from './pages/ResultsPage.jsx';
 import DiabetesReport from './pages/DiabetesReport.jsx';
 import Login from './pages/Login.jsx';
+import LandingPage from './pages/LandingPage.jsx';
 import PatientRecords from './pages/PatientRecords.jsx';
+import HeartAgent from './pages/HeartAgent.jsx';
+import KidneyAgent from './pages/KidneyAgent.jsx';
+import LungAgent from './pages/LungAgent.jsx';
 import { getCurrentUser } from './services/api.js';
 
 export const AppStateContext = createContext(null);
@@ -61,12 +65,12 @@ export default function App() {
             main: '#10b981',
           },
           background: {
-            default: mode === 'light' ? '#f3f4f6' : '#080c0f',
+            default: mode === 'light' ? '#f8fafc' : '#080c0f',
             paper: mode === 'light' ? '#ffffff' : '#0f171e',
           },
           text: {
-            primary: mode === 'light' ? '#1f2937' : '#f3f4f6',
-            secondary: mode === 'light' ? '#6b7280' : '#9ca3af',
+            primary: mode === 'light' ? '#0f172a' : '#f3f4f6',
+            secondary: mode === 'light' ? '#475569' : '#9ca3af',
           },
         },
         shape: { borderRadius: 12 },
@@ -108,7 +112,7 @@ export default function App() {
             styleOverrides: {
               root: {
                 borderRadius: '16px',
-                border: mode === 'light' ? '1px solid #e5e7eb' : '1px solid #1e293b',
+                border: mode === 'light' ? '1px solid #e2e8f0' : '1px solid #1e293b',
                 background: mode === 'light' ? '#ffffff' : '#0f171e',
                 boxShadow: mode === 'light' 
                   ? '0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.02)' 
@@ -168,28 +172,9 @@ export default function App() {
     return (
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <Box sx={{ display: 'flex', minHeight: '100vh', alignItems: 'center', justifyContent: 'center', bgcolor: mode === 'light' ? '#f3f4f6' : '#080c0f' }}>
+        <Box sx={{ display: 'flex', minHeight: '100vh', alignItems: 'center', justifyContent: 'center', bgcolor: mode === 'light' ? '#f8fafc' : '#080c0f' }}>
           <CircularProgress color="primary" />
         </Box>
-      </ThemeProvider>
-    );
-  }
-
-  if (!currentUser) {
-    return (
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <Login
-          onAuthSuccess={async (token) => {
-            localStorage.setItem('health_token', token);
-            try {
-              const user = await getCurrentUser();
-              setCurrentUser(user);
-            } catch (err) {
-              console.error('Failed to login:', err);
-            }
-          }}
-        />
       </ThemeProvider>
     );
   }
@@ -198,26 +183,43 @@ export default function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <AppStateContext.Provider value={value}>
-        <AppShell>
-          <Routes>
-            {currentUser.role === 'doctor' ? (
-              <>
-                <Route path="/" element={<Dashboard />} />
-                <Route path="/intake" element={<PatientInputForm />} />
-                <Route path="/results" element={<ResultsPage />} />
-                <Route path="/diabetes-report" element={<DiabetesReport />} />
-                <Route path="/records" element={<PatientRecords />} />
-                <Route path="*" element={<Navigate to="/" replace />} />
-              </>
-            ) : (
-              <>
-                <Route path="/" element={<PatientRecords />} />
-                <Route path="/diabetes-report" element={<DiabetesReport />} />
-                <Route path="*" element={<Navigate to="/" replace />} />
-              </>
-            )}
-          </Routes>
-        </AppShell>
+        {!currentUser ? (
+          <LandingPage
+            onAuthSuccess={async (token) => {
+              localStorage.setItem('health_token', token);
+              try {
+                const user = await getCurrentUser();
+                setCurrentUser(user);
+              } catch (err) {
+                console.error('Failed to login:', err);
+              }
+            }}
+          />
+        ) : (
+          <AppShell>
+            <Routes>
+              {currentUser.role === 'doctor' ? (
+                <>
+                  <Route path="/" element={<Dashboard />} />
+                  <Route path="/intake" element={<PatientInputForm />} />
+                  <Route path="/results" element={<ResultsPage />} />
+                  <Route path="/diabetes-report" element={<DiabetesReport />} />
+                  <Route path="/heart" element={<HeartAgent />} />
+                  <Route path="/kidney" element={<KidneyAgent />} />
+                  <Route path="/lung" element={<LungAgent />} />
+                  <Route path="/records" element={<PatientRecords />} />
+                  <Route path="*" element={<Navigate to="/" replace />} />
+                </>
+              ) : (
+                <>
+                  <Route path="/" element={<PatientRecords />} />
+                  <Route path="/diabetes-report" element={<DiabetesReport />} />
+                  <Route path="*" element={<Navigate to="/" replace />} />
+                </>
+              )}
+            </Routes>
+          </AppShell>
+        )}
       </AppStateContext.Provider>
     </ThemeProvider>
   );

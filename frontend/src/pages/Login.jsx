@@ -27,12 +27,12 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import MedicalServicesIcon from '@mui/icons-material/MedicalServices';
 import { loginUser, registerUser } from '../services/api.js';
 
-export default function Login({ onAuthSuccess }) {
+export default function Login({ onAuthSuccess, initialRole = 'doctor' }) {
   const [tab, setTab] = useState(0); // 0 = Login, 1 = Register
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
-  const [role, setRole] = useState('patient');
+  const [role, setRole] = useState(initialRole);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -75,9 +75,9 @@ export default function Login({ onAuthSuccess }) {
   };
 
   return (
-    <Container maxWidth="xs" sx={{ mt: { xs: 4, md: 8 }, mb: 4 }}>
-      <Stack spacing={4} alignItems="center">
-        <Stack direction="row" alignItems="center" spacing={1.5} sx={{ mb: 1 }}>
+    <Container maxWidth="xs" sx={{ py: 2 }}>
+      <Stack spacing={3} alignItems="center">
+        <Stack direction="row" alignItems="center" spacing={1.5}>
           <Box
             sx={{
               bgcolor: 'primary.main',
@@ -126,26 +126,26 @@ export default function Login({ onAuthSuccess }) {
               textColor="primary"
               indicatorColor="primary"
             >
-              <Tab label="Sign In" sx={{ fontWeight: 700, py: 2 }} />
-              <Tab label="Register" sx={{ fontWeight: 700, py: 2 }} />
+              <Tab label="Sign In" sx={{ fontWeight: 700, py: 1.75 }} />
+              <Tab label="Register" sx={{ fontWeight: 700, py: 1.75 }} />
             </Tabs>
           </Box>
 
-          <CardContent sx={{ p: 4 }}>
-            <Typography variant="body2" color="text.secondary" align="center" sx={{ mb: 3 }}>
+          <CardContent sx={{ p: 3 }}>
+            <Typography variant="body2" color="text.secondary" align="center" sx={{ mb: 2.5 }}>
               {tab === 0
                 ? 'Sign in to access your clinical portal'
                 : 'Create a new clinical or patient account'}
             </Typography>
 
             {error && (
-              <Alert severity="error" variant="filled" sx={{ mb: 3, borderRadius: '10px' }}>
+              <Alert severity="error" variant="filled" sx={{ mb: 2.5, borderRadius: '10px' }}>
                 {error}
               </Alert>
             )}
 
             <form onSubmit={handleSubmit}>
-              <Stack spacing={2.5}>
+              <Stack spacing={2.25}>
                 {tab === 1 && (
                   <TextField
                     fullWidth
@@ -220,14 +220,14 @@ export default function Login({ onAuthSuccess }) {
                       onChange={(e) => setRole(e.target.value)}
                     >
                       <FormControlLabel
-                        value="patient"
-                        control={<Radio size="small" />}
-                        label={<Typography variant="body2" sx={{ fontWeight: 650 }}>Patient</Typography>}
-                      />
-                      <FormControlLabel
                         value="doctor"
                         control={<Radio size="small" />}
                         label={<Typography variant="body2" sx={{ fontWeight: 650 }}>Doctor</Typography>}
+                      />
+                      <FormControlLabel
+                        value="patient"
+                        control={<Radio size="small" />}
+                        label={<Typography variant="body2" sx={{ fontWeight: 650 }}>Patient</Typography>}
                       />
                     </RadioGroup>
                   </FormControl>

@@ -12,9 +12,11 @@ import {
   Typography,
   Chip,
 } from '@mui/material';
-import AnalyticsIcon from '@mui/icons-material/Analytics';
-import AssignmentIcon from '@mui/icons-material/Assignment';
 import DashboardIcon from '@mui/icons-material/Dashboard';
+import BloodtypeIcon from '@mui/icons-material/Bloodtype';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import WaterDropIcon from '@mui/icons-material/WaterDrop';
+import AirIcon from '@mui/icons-material/Air';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
 import LightModeIcon from '@mui/icons-material/LightMode';
 import MedicalServicesIcon from '@mui/icons-material/MedicalServices';
@@ -29,9 +31,12 @@ export default function AppShell({ children }) {
 
   const nav = currentUser?.role === 'doctor'
     ? [
-        { label: 'Dashboard', to: '/', icon: <DashboardIcon fontSize="small" /> },
-        { label: 'Intake Assessment', to: '/intake', icon: <AssignmentIcon fontSize="small" /> },
-        { label: 'Patient Records', to: '/records', icon: <HistoryIcon fontSize="small" /> },
+        { label: 'Agent Hub', to: '/', icon: <DashboardIcon fontSize="small" /> },
+        { label: 'Diabetes Agent', to: '/intake', icon: <BloodtypeIcon fontSize="small" /> },
+        { label: 'Heart Agent', to: '/heart', icon: <FavoriteIcon fontSize="small" /> },
+        { label: 'Kidney Agent', to: '/kidney', icon: <WaterDropIcon fontSize="small" /> },
+        { label: 'Lung Agent', to: '/lung', icon: <AirIcon fontSize="small" /> },
+        { label: 'Records', to: '/records', icon: <HistoryIcon fontSize="small" /> },
       ]
     : [
         { label: 'My Recommendations', to: '/', icon: <HistoryIcon fontSize="small" /> },
@@ -46,7 +51,7 @@ export default function AppShell({ children }) {
         sx={{
           borderBottom: '1px solid',
           borderColor: mode === 'light' ? 'rgba(0, 0, 0, 0.06)' : 'rgba(255, 255, 255, 0.06)',
-          background: mode === 'light' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(15, 23, 30, 0.8)',
+          background: mode === 'light' ? 'rgba(255, 255, 255, 0.85)' : 'rgba(15, 23, 30, 0.85)',
           backdropFilter: 'blur(12px)',
         }}
       >
@@ -56,7 +61,7 @@ export default function AppShell({ children }) {
               <Box
                 sx={{
                   bgcolor: mode === 'light' ? 'rgba(15, 118, 110, 0.1)' : 'rgba(20, 184, 166, 0.15)',
-                  color: mode === 'light' ? 'primary.main' : 'primary.main',
+                  color: 'primary.main',
                   p: 1,
                   borderRadius: '10px',
                   display: 'flex',
@@ -79,13 +84,13 @@ export default function AppShell({ children }) {
                   letterSpacing: '-0.02em',
                 }}
               >
-                General Medicine CDSS
+                Multi-Agent CDSS Portal
               </Typography>
             </Stack>
 
-            <Stack direction="row" spacing={1} sx={{ display: { xs: 'none', md: 'flex' } }}>
+            <Stack direction="row" spacing={0.75} sx={{ display: { xs: 'none', lg: 'flex' } }}>
               {nav.map((item) => {
-                const isActive = pathname === item.to || (item.to === '/results' && pathname === '/diabetes-report');
+                const isActive = pathname === item.to || (item.to === '/intake' && (pathname === '/results' || pathname === '/diabetes-report'));
                 return (
                   <Button
                     key={item.to}
@@ -96,9 +101,11 @@ export default function AppShell({ children }) {
                     color={isActive ? 'primary' : 'inherit'}
                     size="small"
                     sx={{
-                      px: 2,
-                      py: 1,
+                      px: 1.75,
+                      py: 0.85,
                       borderRadius: '8px',
+                      fontSize: '0.85rem',
+                      fontWeight: 650,
                       color: isActive 
                         ? (mode === 'light' ? '#ffffff' : '#080c0f') 
                         : (mode === 'light' ? '#4b5563' : '#9ca3af'),
@@ -186,7 +193,7 @@ export default function AppShell({ children }) {
           bottom: 0,
           left: 0,
           right: 0,
-          display: { xs: 'flex', md: 'none' },
+          display: { xs: 'flex', lg: 'none' },
           borderTop: '1px solid',
           borderColor: mode === 'light' ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.06)',
           justifyContent: 'space-around',
@@ -197,22 +204,23 @@ export default function AppShell({ children }) {
         }}
       >
         {nav.map((item) => {
-          const isActive = pathname === item.to || (item.to === '/results' && pathname === '/diabetes-report');
+          const isActive = pathname === item.to || (item.to === '/intake' && (pathname === '/results' || pathname === '/diabetes-report'));
           return (
-            <IconButton 
-              key={item.to} 
-              component={Link} 
-              to={item.to} 
-              color={isActive ? 'primary' : 'default'}
-              sx={{
-                transition: 'transform 0.2s',
-                '&:hover': {
-                  transform: 'scale(1.15)',
-                }
-              }}
-            >
-              {item.icon}
-            </IconButton>
+            <Tooltip key={item.to} title={item.label}>
+              <IconButton 
+                component={Link} 
+                to={item.to} 
+                color={isActive ? 'primary' : 'default'}
+                sx={{
+                  transition: 'transform 0.2s',
+                  '&:hover': {
+                    transform: 'scale(1.15)',
+                  }
+                }}
+              >
+                {item.icon}
+              </IconButton>
+            </Tooltip>
           );
         })}
       </Box>
