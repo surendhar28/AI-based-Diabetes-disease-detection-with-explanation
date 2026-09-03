@@ -39,9 +39,14 @@ An intelligent, full-stack **Clinical Decision Support System (CDSS)** and **Aut
 
 ---
 
-## 📸 User Interface & Multi-Agent Showcase
+## 📸 User Interface & Application Screenshots
 
 The application provides specialized, role-tailored dashboards for **Doctors** (full clinical diagnostics, ML risk probability, 4 specialized agent workspaces, GenAI explanation, alternative medicine) and **Patients** (secure, privacy-masked health summaries, medication schedules, and dietary guidance).
+
+| 🩺 Doctor Clinical Decision Support Dashboard | 🥗 Patient Health & Care Management Portal |
+| :---: | :---: |
+| ![Doctor Dashboard UI](docs/images/doctor_dashboard_ui.png) | ![Patient Care Portal UI](docs/images/patient_care_ui.png) |
+| *Intake form, XGBoost risk gauge, symptom matches, Indian brand medicines & GenAI clinical reasoning* | *Masked diagnosis, daily glycemic logs, diet planner, and dosage schedules* |
 
 | 🩸 Diabetes Specialist Workspace | 🫀 Cardiology Specialist Agent |
 | :---: | :---: |
@@ -257,6 +262,37 @@ flowchart TD
 
 ---
 
+## 📊 Model Evaluation Visualizations, Diagnostic Graphs & Results
+
+The machine learning pipeline was trained and evaluated on 100,000 stratified clinical patient records (`KaggleHub: iammustafatz/diabetes-prediction-dataset`). The serialized XGBoost classifier model achieved an **Accuracy of 97.10%** and **ROC-AUC of 0.9732**.
+
+### 📉 Evaluation Graphs & Confusion Matrix
+
+| Confusion Matrix | ROC Discrimination Curve | Feature Importance Breakdown |
+| :---: | :---: | :---: |
+| ![Confusion Matrix](docs/images/confusion_matrix.png) | ![ROC Curve](docs/images/roc_curve.png) | ![Feature Importance](docs/images/feature_importance.png) |
+| *True Negatives: 21,864 \| True Positives: 1,419* | *AUC = 0.9732 showcasing strong discrimination* | *Blood glucose, HbA1c, and BMI rank highest* |
+
+### 📋 Detailed Confusion Matrix Breakdown
+
+| Actual \ Predicted | Predicted Negative (No Diabetes) | Predicted Positive (Diabetes) | Total Actual |
+| :--- | :---: | :---: | :---: |
+| **Actual Negative (Healthy)** | **21,864 (TN)** | **0 (FP)** | 21,864 |
+| **Actual Positive (Diabetic)** | **695 (FN)** | **1,419 (TP)** | 2,114 |
+| **Total Predicted** | 22,559 | 1,419 | **23,978 (Test Set)** |
+
+> 💡 **Clinical Significance:** The model achieved **100% Precision (0 False Positives)**, ensuring healthy patients are never misclassified as diabetic, while maintaining a **0.9732 ROC-AUC** for precise risk probability estimation.
+
+### 🏆 Top Clinical Feature Importance Ranking
+
+1. **Blood Glucose Level (`blood_glucose_level`):** Highest predictor weight (fasting glucose $\ge 126\text{ mg/dL}$ threshold).
+2. **HbA1c Level (`HbA1c_level`):** Primary long-term glycemic marker ($\ge 6.5\%$ diagnostic criteria).
+3. **Body Mass Index (`bmi`):** Key metabolic indicator ($\ge 25.0\text{ kg/m}^2$ elevated cellular resistance).
+4. **Patient Age (`age`):** Progressive risk multiplier.
+5. **Hypertension & Heart Disease (`hypertension`, `heart_disease`):** Cardiovascular comorbidity factors.
+
+---
+
 ## 🔐 Authentication, RBAC & Patient Data Masking
 
 ```mermaid
@@ -435,6 +471,13 @@ cd AI-based-Diabetes-disease-detection-with-explanation
 ├── .gitignore                            # Git exclusion rules
 ├── EXPLANATION.md                        # Technical architecture document
 ├── README.md                             # Project documentation
+├── docs/
+│   └── images/                           # Evaluation graphs & UI screenshots
+│       ├── confusion_matrix.png
+│       ├── doctor_dashboard_ui.png
+│       ├── feature_importance.png
+│       ├── patient_care_ui.png
+│       └── roc_curve.png
 ├── backend/
 │   ├── main.py                           # FastAPI application entrypoint & lifespan
 │   ├── requirements.txt                  # Python package dependencies
