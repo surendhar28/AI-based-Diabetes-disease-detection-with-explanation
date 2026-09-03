@@ -1,12 +1,11 @@
 import React, { createContext, useMemo, useState, useEffect } from 'react';
-import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
+import { Navigate, Route, Routes, useNavigate, useLocation } from 'react-router-dom';
 import { CssBaseline, ThemeProvider, createTheme, Box, CircularProgress } from '@mui/material';
 import AppShell from './components/AppShell.jsx';
 import Dashboard from './pages/Dashboard.jsx';
 import PatientInputForm from './pages/PatientInputForm.jsx';
 import ResultsPage from './pages/ResultsPage.jsx';
 import DiabetesReport from './pages/DiabetesReport.jsx';
-import Login from './pages/Login.jsx';
 import LandingPage from './pages/LandingPage.jsx';
 import PatientRecords from './pages/PatientRecords.jsx';
 import HeartAgent from './pages/HeartAgent.jsx';
@@ -22,6 +21,7 @@ export default function App() {
   const [currentUser, setCurrentUser] = useState(null);
   const [loadingUser, setLoadingUser] = useState(!!localStorage.getItem('health_token'));
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     async function loadUser() {
@@ -139,6 +139,8 @@ export default function App() {
     [mode],
   );
 
+  const effectiveUser = currentUser || { email: 'guest@cdss.ai', full_name: 'Dr. Clinical Guest', role: 'doctor' };
+
   const value = useMemo(
     () => ({
       mode,
@@ -150,13 +152,13 @@ export default function App() {
       caseResult,
       setCaseResult: (result) => {
         setCaseResult(result);
-        if (currentUser?.role === 'doctor') {
+        if (effectiveUser.role === 'doctor') {
           navigate('/results');
         } else {
           navigate('/diabetes-report');
         }
       },
-      currentUser,
+      currentUser: effectiveUser,
       setCurrentUser,
       logout: () => {
         localStorage.removeItem('health_token');
@@ -165,7 +167,7 @@ export default function App() {
         navigate('/');
       }
     }),
-    [mode, caseResult, currentUser, navigate],
+    [mode, caseResult, effectiveUser, navigate],
   );
 
   if (loadingUser) {
@@ -179,11 +181,14 @@ export default function App() {
     );
   }
 
+  // Show Landing Page ONLY on root "/" when unauthenticated
+  const showLanding = !currentUser && location.pathname === '/';
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <AppStateContext.Provider value={value}>
-        {!currentUser ? (
+        {showLanding ? (
           <LandingPage
             onAuthSuccess={async (token) => {
               localStorage.setItem('health_token', token);
@@ -198,25 +203,15 @@ export default function App() {
         ) : (
           <AppShell>
             <Routes>
-              {currentUser.role === 'doctor' ? (
-                <>
-                  <Route path="/" element={<Dashboard />} />
-                  <Route path="/intake" element={<PatientInputForm />} />
-                  <Route path="/results" element={<ResultsPage />} />
-                  <Route path="/diabetes-report" element={<DiabetesReport />} />
-                  <Route path="/heart" element={<HeartAgent />} />
-                  <Route path="/kidney" element={<KidneyAgent />} />
-                  <Route path="/lung" element={<LungAgent />} />
-                  <Route path="/records" element={<PatientRecords />} />
-                  <Route path="*" element={<Navigate to="/" replace />} />
-                </>
-              ) : (
-                <>
-                  <Route path="/" element={<PatientRecords />} />
-                  <Route path="/diabetes-report" element={<DiabetesReport />} />
-                  <Route path="*" element={<Navigate to="/" replace />} />
-                </>
-              )}
+              <Route path="/" element={currentUser?.role === 'patient' ? <PatientRecords /> : <Dashboard />} />
+              <Route path="/intake" element={<PatientInputForm />} />
+              <Route path="/results" element={<ResultsPage />} />
+              <Route path="/diabetes-report" element={<DiabetesReport />} />
+              <Route path="/heart" element={<HeartAgent />} />
+              <Route path="/kidney" element={<KidneyAgent />} />
+              <Route path="/lung" element={<LungAgent />} />
+              <Route path="/records" element={<PatientRecords />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </AppShell>
         )}
