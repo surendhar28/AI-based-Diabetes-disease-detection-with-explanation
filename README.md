@@ -53,7 +53,7 @@ The application provides specialized, role-tailored dashboards for **Doctors** (
 
 ---
 
-## 🏗️ Multi-Agent Architecture & Decision Pipeline
+## 🏗️ System & Integration Architecture
 
 The platform follows a decoupled, stateless REST API architecture powered by **FastAPI** on the backend and **React + Vite + WebGL 3D** on the frontend.
 
@@ -66,7 +66,7 @@ graph TD
     classDef ext fill:#ec4899,stroke:#be185d,stroke-width:2px,color:#fff;
 
     subgraph Client ["Frontend Layer (React 18 + Vite + WebGL 3D)"]
-        Landing3D[3D Interactive Landing Page]:::client
+        Landing3D[3D WebGL Interactive Landing Page]:::client
         UI[Multi-Agent Router SPA UI]:::client
         AxiosClient[Axios REST Client + Auth Interceptor]:::client
     end
@@ -89,7 +89,7 @@ graph TD
             MedEng[Medication Recommendation Engine]:::agent
             DietEng[Dietary Planning Engine]:::agent
             AltEng[Evidence Alternative Medicine Engine]:::agent
-            ExpEng[Dual-Tier AI Explanation Engine]:::agent
+            ExpEng[Multi-Tier AI Explanation Engine]:::agent
         end
     end
 
@@ -98,13 +98,13 @@ graph TD
         UsersTbl[(users table)]:::db
         CasesTbl[(patient_cases table)]:::db
         EventsTbl[(prediction_events audit)]:::db
-        MedTbl[(200k+ medicines brand DB)]:::db
+        MedTbl[(200k+ Indian medicines brand DB)]:::db
     end
 
-    subgraph External ["Dual-Tier AI Services"]
+    subgraph External ["Multi-Tier AI Services"]
         Gemini[Tier 1: Google Gemini 2.5 API]:::ext
         Groq[Tier 2: Groq Cloud LLaMA-3.3 70B]:::ext
-        LocalRules[Tier 3: Local ADA/CDC/WHO Rule Fallback]:::ext
+        LocalRules[Tier 3: Local ADA/CDC/WHO Rule Engine]:::ext
     end
 
     Landing3D --> UI
@@ -115,7 +115,10 @@ graph TD
     AuthCheck -->|Verify Identity & Role| UsersTbl
     
     Router --> GenAgent
-    GenAgent -->|Trigger Condition Met: Glucose >= 126 or Prob >= 60%| DiabAgent
+    GenAgent -->|Trigger Condition: Glucose >= 126 or Prob >= 60%| DiabAgent
+    Router --> HeartAgent
+    Router --> KidneyAgent
+    Router --> LungAgent
     
     DiabAgent --> DiagEng
     DiabAgent --> MedEng
@@ -130,6 +133,62 @@ graph TD
     Router -->|Persist Case & Audit Trail| SQLiteDB
     DiagEng -->|Load Pre-trained Pipelines| Registry[Model Registry Service]
     MedEng -->|Search Indian Brand Database| MedTbl
+```
+
+---
+
+## 🚦 Clinical Decision & Multi-Agent Gating Flow
+
+The CDSS dynamically evaluates patient vitals and symptoms to route cases across specialized organ agents and determine clinical risk severity:
+
+```mermaid
+graph TD
+    classDef init fill:#f3f4f6,stroke:#9ca3af,stroke-width:2px;
+    classDef decision fill:#fef3c7,stroke:#d97706,stroke-width:2px;
+    classDef outcome fill:#dcfce7,stroke:#15803d,stroke-width:2px;
+
+    Start([Patient Vital & Symptom Intake]):::init
+    GenClassifier[General Symptom Classifier]:::init
+    
+    CheckGlucose{Glucose >= 126 mg/dL OR Prob >= 60%?}:::decision
+    CheckHeart{BP > 140 OR Troponin > 0.04?}:::decision
+    CheckKidney{eGFR < 60 OR Creatinine > 1.2?}:::decision
+    CheckLung{SpO2 < 92% OR FEV1/FVC < 0.70?}:::decision
+
+    Start --> GenClassifier
+    GenClassifier --> CheckGlucose
+    
+    CheckGlucose -->|Yes: Trigger Diabetes Agent| RunDiabetesCDSS[Execute Diabetes Specialist Agent]:::init
+    CheckGlucose -->|No: Standard Flow| SaveGeneral[Save Case with General Diagnosis]:::outcome
+    
+    Start --> CheckHeart
+    CheckHeart -->|Yes| RunHeart[Execute Cardiology Agent ASCVD Risk]:::init
+    
+    Start --> CheckKidney
+    CheckKidney -->|Yes| RunKidney[Execute Nephrology Agent CKD Staging]:::init
+    
+    Start --> CheckLung
+    CheckLung -->|Yes| RunLung[Execute Pulmonology Agent GOLD Staging]:::init
+    
+    RunDiabetesCDSS --> EvaluateRisk[XGBoost Predicts Risk Probability]:::init
+    
+    CheckLowRisk{Risk < 35% AND Glucose < 100 mg/dL?}:::decision
+    CheckPre{Glucose 100-125 mg/dL OR Risk 35%-60%?}:::decision
+    CheckType1{Age < 30 AND BMI < 25 AND Insulin <= 20?}:::decision
+    
+    EvaluateRisk --> CheckLowRisk
+    
+    CheckLowRisk -->|Yes| LowRiskOut[Low Diabetes Risk / severity: low]:::outcome
+    CheckLowRisk -->|No| CheckPre
+    
+    CheckPre -->|Yes| PrediabetesOut[Prediabetes / severity: moderate]:::outcome
+    CheckPre -->|No| CheckType1
+    
+    CheckType1 -->|Yes| Type1Out[Type 1 Diabetes / severity: high]:::outcome
+    CheckType1 -->|No| Type2Check{Glucose >= 250 mg/dL OR Risk >= 85%?}:::decision
+    
+    Type2Check -->|Yes| Type2Severe[Type 2 Diabetes / severity: severe]:::outcome
+    Type2Check -->|No| Type2High[Type 2 Diabetes / severity: high]:::outcome
 ```
 
 ---
@@ -195,6 +254,93 @@ flowchart TD
 | **Precision** | **100.0%** | Zero false positive diagnoses on primary test set |
 | **Recall (Sensitivity)** | **67.12%** | True positive detection rate under high specificity thresholds |
 | **F1-Score** | **0.8033** | Harmonic mean of precision and recall |
+
+---
+
+## 🔐 Authentication, RBAC & Patient Data Masking
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Doc as Doctor
+    actor Pat as Patient
+    participant FE as React 3D Frontend
+    participant API as FastAPI Backend
+    participant Auth as Auth & Session Service
+    participant DB as SQLite DB
+
+    %% Doctor Workflow
+    Note over Doc, API: Doctor Workflow (Full Diagnostic & Agent Visibility)
+    Doc->>FE: Enters patient vitals, symptoms & selects agent workspace
+    FE->>API: POST /predict/general + POST /predict/diabetes (Bearer Token)
+    API->>Auth: get_current_user (Verify Token)
+    Auth->>DB: Query User Role
+    DB-->>Auth: Role: doctor
+    Auth-->>API: Doctor Context
+    API-->>FE: Return Full Diagnostic Results + XGBoost Risk % + Brand Drugs + Gemini LLM Reasoning
+    Doc->>FE: Click "Save Case"
+    FE->>API: POST /cases
+    API->>DB: INSERT INTO patient_cases & prediction_events
+
+    %% Patient Workflow
+    Note over Pat, API: Patient Workflow (Privacy & Anxiety Protection Masking)
+    Pat->>FE: Login & navigate to "My Recommendations"
+    FE->>API: GET /cases
+    API->>Auth: get_current_user (Verify Token)
+    Auth->>DB: Query User Role
+    DB-->>Auth: Role: patient
+    Auth-->>API: Patient Context
+    API->>DB: SELECT * FROM patient_cases WHERE patient_email = user_email
+    DB-->>API: Raw case records
+    Note over API: Apply Privacy Masking:<br/>1. general_prediction = null<br/>2. diabetes_prediction.diagnosis = masked<br/>3. diabetes_prediction.risk_probability = masked<br/>4. Retain only 'medication' and 'diet' guidance
+    API-->>FE: Return masked health summary
+    FE-->>Pat: Display friendly care plan & meal schedule
+```
+
+---
+
+## 🗄️ Database Entity-Relationship Model
+
+```mermaid
+erDiagram
+    USERS {
+        int id PK "Primary Key"
+        string email UK "Unique Email Address"
+        string full_name "User Full Name"
+        string password_hash "PBKDF2-HMAC-SHA256 (120k iter)"
+        string role "doctor | patient"
+        string created_at "ISO-8601 Timestamp"
+    }
+    PATIENT_CASES {
+        int id PK "Primary Key"
+        string patient_email FK "References USERS.email"
+        string doctor_email "Email of attending doctor"
+        string symptoms "Intake symptom narrative"
+        string labs "JSON: Glucose, HbA1c, BP, BMI, etc."
+        string general_prediction "JSON: Multi-disease probabilities"
+        string diabetes_prediction "JSON: CDSS risk, severity, meds, diet"
+        string created_at "ISO-8601 Timestamp"
+    }
+    PREDICTION_EVENTS {
+        int id PK "Primary Key"
+        string user_email "Audited Actor Email"
+        string event_type "prediction | login | export"
+        string payload "Audit Snapshot Data"
+        string created_at "ISO-8601 Timestamp"
+    }
+    MEDICINES {
+        int id PK "Primary Key"
+        string name "Indian Commercial Brand Name"
+        real price "Price in INR (₹)"
+        int is_discontinued "Active status flag"
+        string manufacturer_name "Pharma Manufacturer"
+        string type "Tablet, Capsule, Injection"
+        string pack_size_label "Packaging details"
+        string short_composition1 "Primary active composition (Indexed)"
+        string short_composition2 "Secondary active composition (Indexed)"
+    }
+    USERS ||--o{ PATIENT_CASES : "has history of"
+```
 
 ---
 
