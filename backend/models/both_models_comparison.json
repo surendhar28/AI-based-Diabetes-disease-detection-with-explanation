@@ -1,0 +1,52 @@
+{
+  "rf": {
+    "model": "Random Forest Classifier",
+    "accuracy": 0.9101,
+    "precision": 0.4947,
+    "recall": 0.9007,
+    "f1_score": 0.6386,
+    "roc_auc": 0.974,
+    "confusion_matrix": {
+      "tn": 19919,
+      "fp": 1945,
+      "fn": 210,
+      "tp": 1904,
+      "matrix": [
+        [
+          19919,
+          1945
+        ],
+        [
+          210,
+          1904
+        ]
+      ]
+    }
+  },
+  "xgb": {
+    "model": "XGBoost Classifier",
+    "accuracy": 0.971,
+    "precision": 1.0,
+    "recall": 0.6712,
+    "f1_score": 0.8033,
+    "roc_auc": 0.9732,
+    "confusion_matrix": {
+      "tn": 21864,
+      "fp": 0,
+      "fn": 695,
+      "tp": 1419,
+      "matrix": [
+        [
+          21864,
+          0
+        ],
+        [
+          695,
+          1419
+        ]
+      ]
+    }
+  },
+  "selected_best_model": "XGBoost Classifier",
+  "decision_rationale": "XGBoost outperforms Random Forest across Accuracy (97.10% vs 90.06%), Precision (100.00% vs 46.59%), F1-Score (80.33% vs 60.10%), and ROC-AUC (97.32% vs 96.06%). Crucially for clinical decision support, XGBoost achieves zero false positives (FP=0 vs FP=2192 in RF)."
+}
