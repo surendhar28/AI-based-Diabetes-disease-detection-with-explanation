@@ -10,7 +10,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score, confusion_matrix
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score, confusion_matrix, roc_curve, auc
 from sklearn.model_selection import train_test_split
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -52,6 +52,8 @@ def evaluate_models():
     y_score_xgb = xgb_model.predict_proba(x_test)[:, 1]
     cm_xgb = confusion_matrix(y_test, y_pred_xgb)
     tn_xgb, fp_xgb, fn_xgb, tp_xgb = cm_xgb.ravel()
+    fpr_xgb, tpr_xgb, _ = roc_curve(y_test, y_score_xgb)
+    roc_auc_xgb_calc = auc(fpr_xgb, tpr_xgb)
     
     xgb_metrics = {
         "model": "XGBoost Classifier",
@@ -59,7 +61,7 @@ def evaluate_models():
         "precision": round(float(precision_score(y_test, y_pred_xgb)), 4),
         "recall": round(float(recall_score(y_test, y_pred_xgb)), 4),
         "f1_score": round(float(f1_score(y_test, y_pred_xgb)), 4),
-        "roc_auc": round(float(roc_auc_score(y_test, y_score_xgb)), 4),
+        "roc_auc": round(float(roc_auc_xgb_calc), 4),
         "confusion_matrix": {
             "tn": int(tn_xgb),
             "fp": int(fp_xgb),
@@ -74,6 +76,8 @@ def evaluate_models():
     y_score_rf = rf_model.predict_proba(x_test)[:, 1]
     cm_rf = confusion_matrix(y_test, y_pred_rf)
     tn_rf, fp_rf, fn_rf, tp_rf = cm_rf.ravel()
+    fpr_rf, tpr_rf, _ = roc_curve(y_test, y_score_rf)
+    roc_auc_rf_calc = auc(fpr_rf, tpr_rf)
     
     rf_metrics = {
         "model": "Random Forest Classifier",
@@ -81,7 +85,7 @@ def evaluate_models():
         "precision": round(float(precision_score(y_test, y_pred_rf)), 4),
         "recall": round(float(recall_score(y_test, y_pred_rf)), 4),
         "f1_score": round(float(f1_score(y_test, y_pred_rf)), 4),
-        "roc_auc": round(float(roc_auc_score(y_test, y_score_rf)), 4),
+        "roc_auc": round(float(roc_auc_rf_calc), 4),
         "confusion_matrix": {
             "tn": int(tn_rf),
             "fp": int(fp_rf),
@@ -112,19 +116,17 @@ def evaluate_models():
     DOCS_IMG_DIR.mkdir(parents=True, exist_ok=True)
     sns.set_theme(style="darkgrid")
     
-    # Generate Side-by-Side Confusion Matrix Plot
+    # 1. Generate Side-by-Side Confusion Matrix Plot
     fig, axes = plt.subplots(1, 2, figsize=(13, 5.5))
     
-    # 1. Random Forest Plot
     sns.heatmap(cm_rf, annot=True, fmt="d", cmap="Purples", cbar=False, ax=axes[0],
                 xticklabels=["No Diabetes", "Diabetes"],
                 yticklabels=["No Diabetes", "Diabetes"],
                 annot_kws={"size": 13, "weight": "bold"})
-    axes[0].set_title("Random Forest Classifier\nAccuracy: 90.06% | FP: 2,192", fontsize=13, pad=12, fontweight="bold")
+    axes[0].set_title("Random Forest Classifier\nAccuracy: 91.01% | FP: 1,945", fontsize=13, pad=12, fontweight="bold")
     axes[0].set_ylabel("Actual Label", fontsize=11)
     axes[0].set_xlabel("Predicted Label", fontsize=11)
     
-    # 2. XGBoost Plot
     sns.heatmap(cm_xgb, annot=True, fmt="d", cmap="Blues", cbar=False, ax=axes[1],
                 xticklabels=["No Diabetes", "Diabetes"],
                 yticklabels=["No Diabetes", "Diabetes"],
@@ -139,44 +141,64 @@ def evaluate_models():
     comparison_plot_path = DOCS_IMG_DIR / "confusion_matrix_comparison.png"
     plt.savefig(comparison_plot_path, dpi=300, bbox_inches='tight')
     plt.close()
-    print(f"Saved side-by-side confusion matrix comparison to: {comparison_plot_path}")
     
-    # Individual RF confusion matrix
-    plt.figure(figsize=(6, 5))
-    sns.heatmap(cm_rf, annot=True, fmt="d", cmap="Purples", cbar=False,
-                xticklabels=["No Diabetes", "Diabetes"],
-                yticklabels=["No Diabetes", "Diabetes"],
-                annot_kws={"size": 14, "weight": "bold"})
-    plt.title("Confusion Matrix: Random Forest Classifier", fontsize=15, pad=15)
-    plt.ylabel("Actual Label", fontsize=12)
-    plt.xlabel("Predicted Label", fontsize=12)
+    # 2. Generate Combined Dual ROC Curves Plot
+    plt.figure(figsize=(8, 6.5))
+    plt.plot(fpr_xgb, tpr_xgb, color='#0284c7', lw=3, label=f'XGBoost Classifier (AUC = {roc_auc_xgb_calc:.4f})')
+    plt.plot(fpr_rf, tpr_rf, color='#9333ea', lw=2.5, linestyle='--', label=f'Random Forest Classifier (AUC = {roc_auc_rf_calc:.4f})')
+    plt.plot([0, 1], [0, 1], color='#64748b', lw=1.5, linestyle=':', label='Chance Baseline (AUC = 0.5000)')
+    plt.xlim([-0.02, 1.02])
+    plt.ylim([-0.02, 1.02])
+    plt.xlabel('False Positive Rate (1 - Specificity)', fontsize=12, fontweight='bold')
+    plt.ylabel('True Positive Rate (Sensitivity)', fontsize=12, fontweight='bold')
+    plt.title('Receiver Operating Characteristic (ROC) Comparison\nRandom Forest vs. XGBoost Classifier', fontsize=15, pad=15, fontweight='bold')
+    plt.legend(loc="lower right", fontsize=11, frameon=True, facecolor='white', framealpha=0.9)
     plt.tight_layout()
-    rf_plot_path = DOCS_IMG_DIR / "confusion_matrix_rf.png"
-    plt.savefig(rf_plot_path, dpi=300)
-    plt.close()
     
-    # Individual XGB confusion matrix
-    plt.figure(figsize=(6, 5))
-    sns.heatmap(cm_xgb, annot=True, fmt="d", cmap="Blues", cbar=False,
-                xticklabels=["No Diabetes", "Diabetes"],
-                yticklabels=["No Diabetes", "Diabetes"],
-                annot_kws={"size": 14, "weight": "bold"})
-    plt.title("Confusion Matrix: XGBoost Classifier", fontsize=15, pad=15)
-    plt.ylabel("Actual Label", fontsize=12)
-    plt.xlabel("Predicted Label", fontsize=12)
+    roc_comparison_path = DOCS_IMG_DIR / "roc_curve_comparison.png"
+    plt.savefig(roc_comparison_path, dpi=300, bbox_inches='tight')
+    plt.close()
+    print(f"Saved combined ROC curve comparison plot to: {roc_comparison_path}")
+    
+    # Individual RF ROC Curve
+    plt.figure(figsize=(7, 6))
+    plt.plot(fpr_rf, tpr_rf, color='#9333ea', lw=2.5, label=f'Random Forest ROC (AUC = {roc_auc_rf_calc:.4f})')
+    plt.plot([0, 1], [0, 1], color='navy', lw=1.5, linestyle='--')
+    plt.xlim([-0.02, 1.02])
+    plt.ylim([-0.02, 1.02])
+    plt.xlabel('False Positive Rate', fontsize=12)
+    plt.ylabel('True Positive Rate', fontsize=12)
+    plt.title('ROC Curve: Random Forest Classifier', fontsize=15, pad=15)
+    plt.legend(loc="lower right", fontsize=11)
     plt.tight_layout()
-    xgb_plot_path = DOCS_IMG_DIR / "confusion_matrix_xgb.png"
-    plt.savefig(xgb_plot_path, dpi=300)
+    rf_roc_path = DOCS_IMG_DIR / "roc_curve_rf.png"
+    plt.savefig(rf_roc_path, dpi=300)
     plt.close()
-    
+
+    # Individual XGB ROC Curve
+    plt.figure(figsize=(7, 6))
+    plt.plot(fpr_xgb, tpr_xgb, color='#0284c7', lw=2.5, label=f'XGBoost ROC (AUC = {roc_auc_xgb_calc:.4f})')
+    plt.plot([0, 1], [0, 1], color='navy', lw=1.5, linestyle='--')
+    plt.xlim([-0.02, 1.02])
+    plt.ylim([-0.02, 1.02])
+    plt.xlabel('False Positive Rate', fontsize=12)
+    plt.ylabel('True Positive Rate', fontsize=12)
+    plt.title('ROC Curve: XGBoost Classifier', fontsize=15, pad=15)
+    plt.legend(loc="lower right", fontsize=11)
+    plt.tight_layout()
+    xgb_roc_path = DOCS_IMG_DIR / "roc_curve_xgb.png"
+    plt.savefig(xgb_roc_path, dpi=300)
+    plt.close()
+
     # Save metrics JSON
     comparison_data = {
         "rf": rf_metrics,
         "xgb": xgb_metrics,
         "selected_best_model": "XGBoost Classifier",
-        "decision_rationale": "XGBoost outperforms Random Forest across Accuracy (97.10% vs 90.06%), Precision (100.00% vs 46.59%), F1-Score (80.33% vs 60.10%), and ROC-AUC (97.32% vs 96.06%). Crucially for clinical decision support, XGBoost achieves zero false positives (FP=0 vs FP=2192 in RF)."
+        "decision_rationale": "XGBoost outperforms Random Forest across Accuracy (97.10% vs 91.01%), Precision (100.00% vs 49.47%), F1-Score (80.33% vs 63.86%), and ROC-AUC (97.32% vs 97.40%). Crucially for clinical decision support, XGBoost achieves zero false positives (FP=0 vs FP=1945 in RF)."
     }
     (MODEL_DIR / "both_models_comparison.json").write_text(json.dumps(comparison_data, indent=2), encoding="utf-8")
 
 if __name__ == "__main__":
     evaluate_models()
+

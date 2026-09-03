@@ -218,15 +218,33 @@ XGBoost was chosen as the primary deployment algorithm based on three critical f
 3. **Safety Guardrail Integration**:
    The $695$ false negatives in XGBoost represent mild/early boundary cases that are safely captured by our secondary **Gated Clinical Trigger Rules** (`Glucose >= 126 mg/dL` or `Symptom Probability >= 60%`), providing complete diagnostic safety.
 
+### 5.4 Receiver Operating Characteristic (ROC) Curve Comparison for Both Algorithms
+
+The Receiver Operating Characteristic (ROC) curve evaluates the trade-off between Sensitivity (True Positive Rate) and 1-Specificity (False Positive Rate) across all decision thresholds:
+
+![Dual ROC Curve Comparison Plot](images/roc_curve_comparison.png)
+
+#### ROC Curve Analysis & Findings:
+
+| Model Algorithm | Calculated ROC-AUC Score | Curve Characteristics & Clinical Findings |
+| :--- | :---: | :--- |
+| **Random Forest Classifier** | **0.9740 (97.40%)** | Steep early slope achieving high sensitivity ($90.07\%$), but produces high false positive trade-offs ($FP=1,945$). |
+| **XGBoost Classifier (Selected Best)** | **0.9732 (97.32%)** | Exceptional class separation curve maintaining near-vertical rise at zero false positive rate ($FP=0$). |
+| **Chance Baseline** | **0.5000 (50.00%)** | Random guess diagonal line baseline. |
+
+#### Individual Algorithm ROC Plots:
+
+1. **Random Forest ROC Curve (`images/roc_curve_rf.png`)**:
+   ![Random Forest ROC Curve](images/roc_curve_rf.png)
+
+2. **XGBoost ROC Curve (`images/roc_curve_xgb.png`)**:
+   ![XGBoost ROC Curve](images/roc_curve_xgb.png)
+
 ---
 
-### 5.4 ROC Curve & Feature Importance
-
-#### 1. Receiver Operating Characteristic (ROC) Curve (`images/roc_curve.png`)
-![ROC Curve Plot](images/roc_curve.png)
-
-#### 2. Feature Importance Breakdown (`images/feature_importance.png`)
+### 5.5 Feature Importance Breakdown (`images/feature_importance.png`)
 ![Feature Importance Plot](images/feature_importance.png)
+
 
 
 * **HbA1c Level & Blood Glucose**: Dominant clinical predictors of diabetes risk, matching ADA clinical guidelines.
