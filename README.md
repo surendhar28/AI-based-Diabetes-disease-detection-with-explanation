@@ -295,87 +295,113 @@ The machine learning pipeline was trained and evaluated on 100,000 stratified cl
 
 ## 🔐 Authentication, RBAC & Patient Data Masking
 
+The system implements strict **Role-Based Access Control (RBAC)** using **OAuth2 Bearer JWT Tokens** (`HS256`, 24-hour expiration) to segregate clinical diagnostic tools from patient-facing health records, enforcing patient data masking and privacy protection.
+
 ```mermaid
 sequenceDiagram
     autonumber
-    actor Doc as Doctor
-    actor Pat as Patient
-    participant FE as React 3D Frontend
-    participant API as FastAPI Backend
-    participant Auth as Auth & Session Service
-    participant DB as SQLite DB
+    actor Doc as Attending Doctor
+    actor Pat as Patient / Client
+    participant FE as React 3D WebGL Frontend
+    participant API as FastAPI Gateway
+    participant Auth as Auth & Session Guard
+    participant DB as SQLite WAL Database
 
-    %% Doctor Workflow
-    Note over Doc, API: Doctor Workflow (Full Diagnostic & Agent Visibility)
-    Doc->>FE: Enters patient vitals, symptoms & selects agent workspace
+    %% Doctor Diagnostic Workflow
+    Note over Doc, DB: 1. Clinical Intake & Full Diagnostic Workflow (Doctor Role)
+    Doc->>FE: Enters Patient Full Name, Email, Vitals & Symptoms
     FE->>API: POST /predict/general + POST /predict/diabetes (Bearer Token)
-    API->>Auth: get_current_user (Verify Token)
-    Auth->>DB: Query User Role
-    DB-->>Auth: Role: doctor
-    Auth-->>API: Doctor Context
-    API-->>FE: Return Full Diagnostic Results + XGBoost Risk % + Brand Drugs + Gemini LLM Reasoning
-    Doc->>FE: Click "Save Case"
-    FE->>API: POST /cases
+    API->>Auth: get_current_user (Validate JWT)
+    Auth->>DB: Query User Role from `users`
+    DB-->>Auth: role = 'doctor'
+    Auth-->>API: Doctor Identity Context
+    API-->>FE: Return Complete CDSS Payload:<br/>• XGBoost Risk Score & Severity<br/>• 200k+ Indian Pharma Brand Matches<br/>• Diagnosis-Dynamic Glycemic Diet Plan<br/>• Diagnosis-Tailored Physical Activities<br/>• Gemini 2.5 AI Clinical Reasoning
+    Doc->>FE: Click "Save Consultation Case"
+    FE->>API: POST /cases (patient_name, patient_email, symptoms, labs, predictions)
     API->>DB: INSERT INTO patient_cases & prediction_events
 
-    %% Patient Workflow
-    Note over Pat, API: Patient Workflow (Privacy & Anxiety Protection Masking)
-    Pat->>FE: Login & navigate to "My Recommendations"
+    %% Patient Privacy Workflow
+    Note over Pat, DB: 2. Patient Access & Anxiety Protection Masking (Patient Role)
+    Pat->>FE: Authenticate & navigate to "My Healthcare Consultations"
     FE->>API: GET /cases
-    API->>Auth: get_current_user (Verify Token)
+    API->>Auth: get_current_user (Validate JWT)
     Auth->>DB: Query User Role
-    DB-->>Auth: Role: patient
-    Auth-->>API: Patient Context
-    API->>DB: SELECT * FROM patient_cases WHERE patient_email = user_email
-    DB-->>API: Raw case records
-    Note over API: Apply Privacy Masking:<br/>1. general_prediction = null<br/>2. diabetes_prediction.diagnosis = masked<br/>3. diabetes_prediction.risk_probability = masked<br/>4. Retain only 'medication' and 'diet' guidance
-    API-->>FE: Return masked health summary
-    FE-->>Pat: Display friendly care plan & meal schedule
+    DB-->>Auth: role = 'patient'
+    Auth-->>API: Patient Identity Context
+    API->>DB: SELECT * FROM patient_cases WHERE LOWER(patient_email) = LOWER(user_email)
+    DB-->>API: Raw Consultation Case Records
+    Note over API: Apply Privacy & Data Masking:<br/>1. general_prediction set to NULL (Prevents diagnostic confusion)<br/>2. Mask raw probability numbers & clinical diagnostic codes<br/>3. Expose action-oriented 'medication', 'diet', and 'physical_activities'
+    API-->>FE: Return Masked Patient Care Plan Payload
+    FE-->>Pat: Render Friendly Care Plan, Daily Meal Schedule & Downloadable Report (.txt / PDF)
 ```
+
+### 🛡️ Key Security & Privacy Safeguards
+
+- **JWT Authentication Security:** All API routes (except `/auth/register` and `/auth/login`) require a valid HTTP Bearer token signed with `HS256` secret key and password hashes derived via `PBKDF2-HMAC-SHA256` (120,000 iterations).
+- **Patient Isolation:** Patients can strictly query consultation cases tied to their authenticated email address (`LOWER(patient_email) = LOWER(user_email)`). Attempting to access another patient's case ID returns an HTTP 403 Forbidden error.
+- **Clinical Privacy & Anxiety Masking:** Raw differential disease probabilities (`general_prediction`) and unvalidated candidate diagnoses are masked for patient logins. Patients receive structured, non-alarming care plans containing verified prescription guidelines, Indian commercial brand matches, glycemic meal schedules, and physical activity protocols.
+- **Audit Logging:** Every prediction execution, patient intake creation, and report export is recorded in `prediction_events` with actor timestamps and client IP addresses.
 
 ---
 
-## 🗄️ Database Entity-Relationship Model
+## 🗄️ Database Entity-Relationship (ER) Model
+
+The application uses an optimized **SQLite database operating in Write-Ahead Logging (WAL) Mode** (`PRAGMA journal_mode=WAL`, `PRAGMA foreign_keys=ON`) for high-concurrency read/write throughput, instant ACID compliance, and low latency.
 
 ```mermaid
 erDiagram
     USERS {
-        int id PK "Primary Key"
-        string email UK "Unique Email Address"
+        int id PK "Primary Key (Auto-Increment)"
+        string email UK "Unique User Email Address"
         string full_name "User Full Name"
-        string password_hash "PBKDF2-HMAC-SHA256 (120k iter)"
-        string role "doctor | patient"
-        string created_at "ISO-8601 Timestamp"
+        string password_hash "PBKDF2-HMAC-SHA256 Password Hash"
+        string role "doctor | patient (Default: patient)"
+        string created_at "ISO-8601 UTC Timestamp"
     }
+    
     PATIENT_CASES {
-        int id PK "Primary Key"
-        string patient_email FK "References USERS.email"
+        int id PK "Primary Key (Auto-Increment)"
+        string patient_name "Patient Full Name (e.g., Sarah Connor)"
+        string patient_email FK "References USERS.email (Indexed)"
         string doctor_email "Email of attending doctor"
-        string symptoms "Intake symptom narrative"
-        string labs "JSON: Glucose, HbA1c, BP, BMI, etc."
-        string general_prediction "JSON: Multi-disease probabilities"
-        string diabetes_prediction "JSON: CDSS risk, severity, meds, diet"
-        string created_at "ISO-8601 Timestamp"
+        string symptoms "Symptom narrative input string"
+        string labs "JSON: Glucose, HbA1c, BP, BMI, Insulin, etc."
+        string general_prediction "JSON: Multi-disease symptom probabilities"
+        string diabetes_prediction "JSON: XGBoost risk, meds, diet, exercises, AI reasoning"
+        string created_at "ISO-8601 UTC Timestamp"
     }
+    
     PREDICTION_EVENTS {
-        int id PK "Primary Key"
-        string user_email "Audited Actor Email"
-        string event_type "prediction | login | export"
-        string payload "Audit Snapshot Data"
-        string created_at "ISO-8601 Timestamp"
+        int id PK "Primary Key (Auto-Increment)"
+        string user_email "Audited Actor Email Address"
+        string event_type "general_prediction | diabetes_prediction | case_save"
+        string payload "JSON Audit Event Snapshot Data"
+        string created_at "ISO-8601 UTC Timestamp"
     }
+    
     MEDICINES {
-        int id PK "Primary Key"
+        int id PK "Primary Key (Auto-Increment)"
         string name "Indian Commercial Brand Name"
-        real price "Price in INR (₹)"
-        int is_discontinued "Active status flag"
-        string manufacturer_name "Pharma Manufacturer"
-        string type "Tablet, Capsule, Injection"
-        string pack_size_label "Packaging details"
-        string short_composition1 "Primary active composition (Indexed)"
-        string short_composition2 "Secondary active composition (Indexed)"
+        real price "Price in Indian Rupees (₹)"
+        int is_discontinued "Active manufacturing status flag (0 = Active)"
+        string manufacturer_name "Pharma Manufacturer Name"
+        string type "Tablet, Capsule, Injection, Syrup"
+        string pack_size_label "Packaging specification label"
+        string short_composition1 "Primary active chemical composition (Indexed)"
+        string short_composition2 "Secondary active chemical composition (Indexed)"
     }
-    USERS ||--o{ PATIENT_CASES : "has history of"
+
+    USERS ||--o{ PATIENT_CASES : "owns / consults"
+    USERS ||--o{ PREDICTION_EVENTS : "triggers audit event"
+    PATIENT_CASES }|..|{ MEDICINES : "cross-references brand compounds"
+```
+
+### 📋 Database Table Specifications
+
+1. **`users` Table:** Stores user credentials, hashed passwords, full names, and system roles (`doctor` vs `patient`).
+2. **`patient_cases` Table:** Stores complete intake records including `patient_name`, `patient_email`, attending `doctor_email`, symptoms, laboratory measurements JSON (`glucose`, `hba1c_level`, `blood_pressure`, `bmi`, `insulin`, `skin_thickness`, etc.), general symptom classifier predictions JSON, and specialist diabetes CDSS predictions JSON (XGBoost risk score, 200k+ Indian pharma brand matches, diagnosis-dynamic glycemic diet plan, diagnosis-tailored physical activities, and Gemini 2.5 AI clinical explanations).
+3. **`prediction_events` Table:** Immutable audit log tracking prediction API calls, login events, and report exports with timestamps and user email context.
+4. **`medicines` Table:** Indexed database of **200,000+ Indian commercial pharmaceutical brand formulations** (`A_Z_medicines_dataset_of_India.csv`), supporting fast SQL wildcard matches on active chemical compositions (`short_composition1`, `short_composition2`).
 ```
 
 ---
