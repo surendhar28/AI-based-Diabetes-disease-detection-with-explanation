@@ -29,13 +29,19 @@ import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
 import LightModeIcon from '@mui/icons-material/LightMode';
+import ViewInArIcon from '@mui/icons-material/ViewInAr';
 import { AppStateContext } from '../App.jsx';
+import Hero3DCanvas from '../components/Hero3DCanvas.jsx';
+import Hologram3DCore from '../components/Hologram3DCore.jsx';
+import TiltCard3D from '../components/TiltCard3D.jsx';
 import Login from './Login.jsx';
 
 export default function LandingPage({ onAuthSuccess }) {
   const { mode, toggleMode } = useContext(AppStateContext);
   const [openAuth, setOpenAuth] = useState(false);
   const [initialRole, setInitialRole] = useState('doctor');
+
+  const isLight = mode === 'light';
 
   const handleOpenAuth = (role = 'doctor') => {
     setInitialRole(role);
@@ -47,11 +53,11 @@ export default function LandingPage({ onAuthSuccess }) {
       id: 'diabetes',
       title: 'Diabetes Specialist Agent',
       icon: <BloodtypeIcon sx={{ fontSize: 36 }} />,
-      color: mode === 'light' ? '#0f766e' : '#14b8a6',
+      color: isLight ? '#0f766e' : '#14b8a6',
       status: 'ONLINE & OPERATIONAL',
       statusColor: 'success',
-      desc: 'Powered by a 97.1% accuracy XGBoost ML pipeline, automated fasting glucose triggers, 200k+ Indian commercial drug lookup, and Groq LLaMA-3.3 clinical reasoning.',
-      highlights: ['97.1% XGBoost Accuracy', 'Fasting Glucose & HbA1c Triggers', 'Groq LLaMA-3.3 Clinical Explanations', 'Glycemic Index Diet Planner'],
+      desc: 'Powered by a 97.1% accuracy XGBoost ML pipeline, automated fasting glucose triggers, 200k+ Indian commercial drug lookup, and Gemini 2.5 AI clinical reasoning.',
+      highlights: ['97.1% XGBoost Accuracy', 'Fasting Glucose & HbA1c Triggers', 'Gemini 2.5 AI Clinical Explanations', 'Glycemic Index Diet Planner'],
     },
     {
       id: 'heart',
@@ -86,8 +92,20 @@ export default function LandingPage({ onAuthSuccess }) {
   ];
 
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: 'background.default', color: 'text.primary', overflowX: 'hidden', transition: 'background-color 0.3s ease, color 0.3s ease' }}>
-      {/* Top Navbar */}
+    <Box
+      sx={{
+        minHeight: '100vh',
+        bgcolor: 'background.default',
+        color: 'text.primary',
+        overflowX: 'hidden',
+        position: 'relative',
+        transition: 'background-color 0.3s ease, color 0.3s ease',
+      }}
+    >
+      {/* 3D WebGL Background Canvas */}
+      <Hero3DCanvas mode={mode} />
+
+      {/* Top Glassmorphic Navbar */}
       <Box
         className="glass-panel"
         sx={{
@@ -95,8 +113,8 @@ export default function LandingPage({ onAuthSuccess }) {
           top: 0,
           zIndex: 100,
           borderBottom: '1px solid',
-          borderColor: mode === 'light' ? 'rgba(0, 0, 0, 0.08)' : 'rgba(255, 255, 255, 0.08)',
-          background: mode === 'light' ? 'rgba(255, 255, 255, 0.85)' : 'rgba(8, 12, 15, 0.85)',
+          borderColor: isLight ? 'rgba(0, 0, 0, 0.08)' : 'rgba(255, 255, 255, 0.08)',
+          background: isLight ? 'rgba(255, 255, 255, 0.85)' : 'rgba(8, 12, 15, 0.85)',
           backdropFilter: 'blur(16px)',
           py: 2,
         }}
@@ -106,7 +124,7 @@ export default function LandingPage({ onAuthSuccess }) {
             <Stack direction="row" spacing={1.5} alignItems="center">
               <Box
                 sx={{
-                  bgcolor: mode === 'light' ? 'rgba(15, 118, 110, 0.1)' : 'rgba(20, 184, 166, 0.15)',
+                  bgcolor: isLight ? 'rgba(15, 118, 110, 0.1)' : 'rgba(20, 184, 166, 0.15)',
                   color: 'primary.main',
                   p: 1.2,
                   borderRadius: '12px',
@@ -122,20 +140,30 @@ export default function LandingPage({ onAuthSuccess }) {
                 className="text-gradient-primary"
                 sx={{ fontWeight: 800, letterSpacing: '-0.02em', fontSize: '1.25rem' }}
               >
-                Agentic Healthcare CDSS
+                Agentic Healthcare 3D
               </Typography>
             </Stack>
 
             <Stack direction="row" spacing={2} alignItems="center">
-              {/* Light / Dark Mode Toggle Button */}
-              <Tooltip title={mode === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode'}>
+              {/* 3D Mode Active Badge */}
+              <Chip
+                icon={<ViewInArIcon sx={{ fontSize: '16px !important' }} />}
+                label="3D Interactive Experience"
+                color="primary"
+                variant="outlined"
+                size="small"
+                sx={{ fontWeight: 750, display: { xs: 'none', md: 'inline-flex' } }}
+              />
+
+              {/* Light / Dark Mode Toggle */}
+              <Tooltip title={isLight ? 'Switch to Dark Mode' : 'Switch to Light Mode'}>
                 <IconButton
                   onClick={toggleMode}
                   color="primary"
                   aria-label="toggle light dark theme"
                   sx={{
                     border: '1px solid',
-                    borderColor: mode === 'light' ? 'rgba(15, 118, 110, 0.25)' : 'rgba(20, 184, 166, 0.3)',
+                    borderColor: isLight ? 'rgba(15, 118, 110, 0.25)' : 'rgba(20, 184, 166, 0.3)',
                     p: 1,
                     transition: 'transform 0.4s ease',
                     '&:hover': {
@@ -143,7 +171,7 @@ export default function LandingPage({ onAuthSuccess }) {
                     },
                   }}
                 >
-                  {mode === 'light' ? <DarkModeIcon /> : <LightModeIcon />}
+                  {isLight ? <DarkModeIcon /> : <LightModeIcon />}
                 </IconButton>
               </Tooltip>
 
@@ -172,15 +200,15 @@ export default function LandingPage({ onAuthSuccess }) {
         </Container>
       </Box>
 
-      {/* Hero Section */}
-      <Container maxWidth="xl" sx={{ pt: { xs: 6, md: 10 }, pb: 8 }}>
+      {/* 3D Hero Section */}
+      <Container maxWidth="xl" sx={{ pt: { xs: 5, md: 8 }, pb: 8, position: 'relative', zIndex: 1 }}>
         <Grid container spacing={6} alignItems="center">
-          <Grid item xs={12} lg={7}>
+          <Grid item xs={12} lg={6.5}>
             <Stack spacing={3}>
               <Box>
                 <Chip
                   icon={<AutoAwesomeIcon />}
-                  label="Agentic AI Healthcare Platform • Multi-Agent CDSS"
+                  label="3D Multi-Agent AI Healthcare CDSS"
                   color="primary"
                   variant="outlined"
                   sx={{
@@ -188,6 +216,7 @@ export default function LandingPage({ onAuthSuccess }) {
                     px: 1,
                     py: 2,
                     borderRadius: '20px',
+                    boxShadow: isLight ? '0 4px 14px rgba(15,118,110,0.12)' : '0 4px 20px rgba(20,184,166,0.25)',
                   }}
                 />
               </Box>
@@ -198,74 +227,82 @@ export default function LandingPage({ onAuthSuccess }) {
                   fontWeight: 900,
                   letterSpacing: '-0.03em',
                   lineHeight: 1.12,
-                  fontSize: { xs: '2.5rem', sm: '3.5rem', md: '4rem' },
+                  fontSize: { xs: '2.4rem', sm: '3.4rem', md: '3.8rem' },
                 }}
               >
-                Autonomous Multi-Agent <br />
-                <span className="text-gradient-primary">Clinical Decision Support</span>
+                Autonomous 3D Multi-Agent <br />
+                <span className="text-gradient-primary">Clinical Intelligence</span>
               </Typography>
 
-              <Typography variant="h6" color="text.secondary" sx={{ fontWeight: 400, lineHeight: 1.6, maxWidth: 680 }}>
-                Screen early symptoms, trigger specialized organ disease agents, and generate instant clinical explanations backed by <strong>XGBoost ML (97.1% Accuracy)</strong>, <strong>Groq LLaMA-3.3 LLM</strong>, and <strong>200,000+ Indian Commercial Medicines</strong>.
+              <Typography variant="h6" color="text.secondary" sx={{ fontWeight: 400, lineHeight: 1.6, maxWidth: 650 }}>
+                Screen early symptoms, trigger specialized organ disease agents, and generate instant clinical explanations backed by <strong>XGBoost ML (97.1% Accuracy)</strong>, <strong>Google Gemini 2.5 AI</strong>, and <strong>200,000+ Indian Commercial Medicines</strong>.
               </Typography>
 
-              {/* Stats Bar */}
+              {/* 3D Interactive Stats Cards */}
               <Grid container spacing={2} sx={{ pt: 1 }}>
                 <Grid item xs={6} sm={3}>
-                  <Paper
-                    variant="outlined"
-                    sx={{
-                      p: 2,
-                      borderRadius: '16px',
-                      bgcolor: mode === 'light' ? '#ffffff' : 'rgba(15, 23, 30, 0.6)',
-                      borderColor: mode === 'light' ? '#e5e7eb' : 'rgba(255,255,255,0.08)',
-                    }}
-                  >
-                    <Typography variant="h4" sx={{ fontWeight: 900, color: 'primary.main' }}>97.1%</Typography>
-                    <Typography variant="caption" color="text.secondary">ML Diagnostic Accuracy</Typography>
-                  </Paper>
+                  <TiltCard3D color="#14b8a6">
+                    <Paper
+                      variant="outlined"
+                      sx={{
+                        p: 2,
+                        borderRadius: '16px',
+                        bgcolor: isLight ? '#ffffff' : 'rgba(15, 23, 30, 0.75)',
+                        borderColor: isLight ? '#e2e8f0' : 'rgba(255,255,255,0.08)',
+                      }}
+                    >
+                      <Typography variant="h4" sx={{ fontWeight: 900, color: 'primary.main' }}>97.1%</Typography>
+                      <Typography variant="caption" color="text.secondary">ML Diagnostic Accuracy</Typography>
+                    </Paper>
+                  </TiltCard3D>
                 </Grid>
                 <Grid item xs={6} sm={3}>
-                  <Paper
-                    variant="outlined"
-                    sx={{
-                      p: 2,
-                      borderRadius: '16px',
-                      bgcolor: mode === 'light' ? '#ffffff' : 'rgba(15, 23, 30, 0.6)',
-                      borderColor: mode === 'light' ? '#e5e7eb' : 'rgba(255,255,255,0.08)',
-                    }}
-                  >
-                    <Typography variant="h4" sx={{ fontWeight: 900, color: 'secondary.main' }}>4 Agents</Typography>
-                    <Typography variant="caption" color="text.secondary">Specialist AI Systems</Typography>
-                  </Paper>
+                  <TiltCard3D color="#a78bfa">
+                    <Paper
+                      variant="outlined"
+                      sx={{
+                        p: 2,
+                        borderRadius: '16px',
+                        bgcolor: isLight ? '#ffffff' : 'rgba(15, 23, 30, 0.75)',
+                        borderColor: isLight ? '#e2e8f0' : 'rgba(255,255,255,0.08)',
+                      }}
+                    >
+                      <Typography variant="h4" sx={{ fontWeight: 900, color: 'secondary.main' }}>4 Agents</Typography>
+                      <Typography variant="caption" color="text.secondary">Specialist AI Systems</Typography>
+                    </Paper>
+                  </TiltCard3D>
                 </Grid>
                 <Grid item xs={6} sm={3}>
-                  <Paper
-                    variant="outlined"
-                    sx={{
-                      p: 2,
-                      borderRadius: '16px',
-                      bgcolor: mode === 'light' ? '#ffffff' : 'rgba(15, 23, 30, 0.6)',
-                      borderColor: mode === 'light' ? '#e5e7eb' : 'rgba(255,255,255,0.08)',
-                    }}
-                  >
-                    <Typography variant="h4" sx={{ fontWeight: 900, color: '#f59e0b' }}>200k+</Typography>
-                    <Typography variant="caption" color="text.secondary">Indian Pharma Brands</Typography>
-                  </Paper>
+                  <TiltCard3D color="#f59e0b">
+                    <Paper
+                      variant="outlined"
+                      sx={{
+                        p: 2,
+                        borderRadius: '16px',
+                        bgcolor: isLight ? '#ffffff' : 'rgba(15, 23, 30, 0.75)',
+                        borderColor: isLight ? '#e2e8f0' : 'rgba(255,255,255,0.08)',
+                      }}
+                    >
+                      <Typography variant="h4" sx={{ fontWeight: 900, color: '#f59e0b' }}>200k+</Typography>
+                      <Typography variant="caption" color="text.secondary">Indian Pharma Brands</Typography>
+                    </Paper>
+                  </TiltCard3D>
                 </Grid>
                 <Grid item xs={6} sm={3}>
-                  <Paper
-                    variant="outlined"
-                    sx={{
-                      p: 2,
-                      borderRadius: '16px',
-                      bgcolor: mode === 'light' ? '#ffffff' : 'rgba(15, 23, 30, 0.6)',
-                      borderColor: mode === 'light' ? '#e5e7eb' : 'rgba(255,255,255,0.08)',
-                    }}
-                  >
-                    <Typography variant="h4" sx={{ fontWeight: 900, color: '#f43f5e' }}>&lt; 5s</Typography>
-                    <Typography variant="caption" color="text.secondary">LLM Reasoning Latency</Typography>
-                  </Paper>
+                  <TiltCard3D color="#f43f5e">
+                    <Paper
+                      variant="outlined"
+                      sx={{
+                        p: 2,
+                        borderRadius: '16px',
+                        bgcolor: isLight ? '#ffffff' : 'rgba(15, 23, 30, 0.75)',
+                        borderColor: isLight ? '#e2e8f0' : 'rgba(255,255,255,0.08)',
+                      }}
+                    >
+                      <Typography variant="h4" sx={{ fontWeight: 900, color: '#f43f5e' }}>Gemini 2.5</Typography>
+                      <Typography variant="caption" color="text.secondary">Tier 1 AI Engine</Typography>
+                    </Paper>
+                  </TiltCard3D>
                 </Grid>
               </Grid>
 
@@ -281,6 +318,7 @@ export default function LandingPage({ onAuthSuccess }) {
                     fontSize: '1.05rem',
                     borderRadius: '12px',
                     fontWeight: 750,
+                    boxShadow: isLight ? '0 8px 20px rgba(15,118,110,0.25)' : '0 8px 25px rgba(20,184,166,0.35)',
                   }}
                 >
                   Doctor Sign In &amp; CDSS
@@ -294,9 +332,9 @@ export default function LandingPage({ onAuthSuccess }) {
                     py: 1.75,
                     fontSize: '1.05rem',
                     borderRadius: '12px',
-                    borderColor: mode === 'light' ? '#cbd5e1' : 'rgba(255,255,255,0.2)',
+                    borderColor: isLight ? '#cbd5e1' : 'rgba(255,255,255,0.2)',
                     color: 'text.primary',
-                    '&:hover': { borderColor: 'primary.main', bgcolor: mode === 'light' ? 'rgba(15, 118, 110, 0.08)' : 'rgba(20, 184, 166, 0.08)' },
+                    '&:hover': { borderColor: 'primary.main', bgcolor: isLight ? 'rgba(15, 118, 110, 0.08)' : 'rgba(20, 184, 166, 0.08)' },
                   }}
                 >
                   Patient Care Portal
@@ -305,155 +343,124 @@ export default function LandingPage({ onAuthSuccess }) {
             </Stack>
           </Grid>
 
-          {/* Right Hero Feature Preview */}
-          <Grid item xs={12} lg={5}>
-            <Paper
-              className="glass-panel"
-              variant="outlined"
-              sx={{
-                p: 4,
-                borderRadius: '28px',
-                border: '1px solid',
-                borderColor: mode === 'light' ? 'rgba(15, 118, 110, 0.2)' : 'rgba(20, 184, 166, 0.25)',
-                background: mode === 'light' ? '#ffffff' : 'linear-gradient(135deg, rgba(15, 23, 30, 0.9) 0%, rgba(8, 12, 15, 0.95) 100%)',
-                boxShadow: mode === 'light' ? '0 10px 30px rgba(0, 0, 0, 0.08)' : '0 20px 60px rgba(0, 0, 0, 0.6)',
-              }}
-            >
-              <Typography variant="h6" sx={{ fontWeight: 800, mb: 3, color: 'primary.main' }}>
-                Multi-Agent CDSS Capability Architecture
-              </Typography>
-
-              <Stack spacing={2.5}>
-                <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-start' }}>
-                  <Box sx={{ bgcolor: mode === 'light' ? 'rgba(15, 118, 110, 0.1)' : 'rgba(20, 184, 166, 0.15)', color: 'primary.main', p: 1, borderRadius: '10px' }}>
-                    <SpeedIcon />
-                  </Box>
-                  <Box>
-                    <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>Dual-Tier Gating Pipeline</Typography>
-                    <Typography variant="body2" color="text.secondary">General symptom classifier automatically escalates cases to specialist agents when risk signals cross safety limits.</Typography>
-                  </Box>
-                </Box>
-
-                <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-start' }}>
-                  <Box sx={{ bgcolor: 'rgba(167, 139, 250, 0.15)', color: 'secondary.main', p: 1, borderRadius: '10px' }}>
-                    <AutoAwesomeIcon />
-                  </Box>
-                  <Box>
-                    <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>Explainable Groq LLaMA-3.3 AI</Typography>
-                    <Typography variant="body2" color="text.secondary">Generates clinical reasoning summaries referencing ADA, CDC, and WHO guidelines with local safety fallbacks.</Typography>
-                  </Box>
-                </Box>
-
-                <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-start' }}>
-                  <Box sx={{ bgcolor: 'rgba(245, 158, 11, 0.15)', color: '#f59e0b', p: 1, borderRadius: '10px' }}>
-                    <LocalPharmacyIcon />
-                  </Box>
-                  <Box>
-                    <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>Indian Commercial Pharma Database</Typography>
-                    <Typography variant="body2" color="text.secondary">Provides active composition lookup, generic drug alternatives, and pricing in INR across 200,000+ brands.</Typography>
-                  </Box>
-                </Box>
-
-                <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-start' }}>
-                  <Box sx={{ bgcolor: 'rgba(16, 185, 129, 0.15)', color: '#10b981', p: 1, borderRadius: '10px' }}>
-                    <ShieldIcon />
-                  </Box>
-                  <Box>
-                    <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>Data Privacy &amp; Patient Masking</Typography>
-                    <Typography variant="body2" color="text.secondary">Patient views receive automatically masked diagnosis notes to prevent clinical distress while preserving diet and dosage guidance.</Typography>
-                  </Box>
-                </Box>
-              </Stack>
-            </Paper>
+          {/* Right Column: Interactive 3D Hologram Core */}
+          <Grid item xs={12} lg={5.5}>
+            <Hologram3DCore mode={mode} />
           </Grid>
         </Grid>
       </Container>
 
-      {/* Section: 4 Specialized Healthcare Agents */}
-      <Box sx={{ py: 8, bgcolor: mode === 'light' ? 'rgba(0, 0, 0, 0.02)' : 'rgba(15, 23, 30, 0.5)', borderTop: '1px solid', borderBottom: '1px solid', borderColor: mode === 'light' ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.05)' }}>
+      {/* Section: 4 Specialized Healthcare Agents with 3D Mouse Tilt */}
+      <Box
+        sx={{
+          py: 9,
+          bgcolor: isLight ? 'rgba(248, 250, 252, 0.7)' : 'rgba(15, 23, 30, 0.65)',
+          borderTop: '1px solid',
+          borderBottom: '1px solid',
+          borderColor: isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.05)',
+          position: 'relative',
+          zIndex: 1,
+        }}
+      >
         <Container maxWidth="xl">
           <Stack spacing={2} alignItems="center" textAlign="center" sx={{ mb: 6 }}>
+            <Chip label="Interactive 3D Cards" color="primary" variant="outlined" sx={{ fontWeight: 750 }} />
             <Typography variant="h3" sx={{ fontWeight: 900, letterSpacing: '-0.02em' }}>
               4 Specialist Autonomous <span className="text-gradient-primary">Healthcare AI Agents</span>
             </Typography>
             <Typography variant="body1" color="text.secondary" sx={{ maxWidth: 700 }}>
-              Tailored clinical agents providing specialized diagnostics across primary metabolic, cardiovascular, renal, and pulmonary domains.
+              Hover over each card below to experience 3D perspective depth and interactive lighting tilt.
             </Typography>
           </Stack>
 
-          <Grid container spacing={3}>
+          <Grid container spacing={4}>
             {agents.map((agent) => (
               <Grid item xs={12} md={6} key={agent.id}>
-                <Card
-                  variant="outlined"
-                  sx={{
-                    borderRadius: '24px',
-                    bgcolor: mode === 'light' ? '#ffffff' : '#0f171e',
-                    border: `1px solid ${agent.color}30`,
-                    p: 1,
-                    transition: 'transform 0.3s ease, border-color 0.3s ease',
-                    '&:hover': {
-                      transform: 'translateY(-4px)',
-                      borderColor: agent.color,
-                    },
-                  }}
-                >
-                  <CardContent sx={{ p: 3 }}>
-                    <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
-                      <Stack direction="row" spacing={2} alignItems="center">
-                        <Box sx={{ bgcolor: `${agent.color}20`, color: agent.color, p: 1.5, borderRadius: '14px' }}>
-                          {agent.icon}
-                        </Box>
-                        <Typography variant="h5" sx={{ fontWeight: 800, color: agent.color }}>
-                          {agent.title}
-                        </Typography>
+                <TiltCard3D color={agent.color}>
+                  <Card
+                    variant="outlined"
+                    sx={{
+                      borderRadius: '24px',
+                      bgcolor: isLight ? '#ffffff' : '#0f171e',
+                      border: `1px solid ${agent.color}35`,
+                      boxShadow: isLight
+                        ? `0 10px 30px ${agent.color}15`
+                        : `0 12px 40px ${agent.color}20`,
+                      p: 1,
+                      transformStyle: 'preserve-3d',
+                    }}
+                  >
+                    <CardContent sx={{ p: 3, transformStyle: 'preserve-3d' }}>
+                      <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2.5, transformStyle: 'preserve-3d' }}>
+                        <Stack direction="row" spacing={2} alignItems="center" sx={{ transform: 'translateZ(25px)' }}>
+                          <Box
+                            sx={{
+                              bgcolor: `${agent.color}20`,
+                              color: agent.color,
+                              p: 1.5,
+                              borderRadius: '16px',
+                              boxShadow: `0 0 20px ${agent.color}40`,
+                            }}
+                          >
+                            {agent.icon}
+                          </Box>
+                          <Typography variant="h5" sx={{ fontWeight: 850, color: agent.color }}>
+                            {agent.title}
+                          </Typography>
+                        </Stack>
+                        <Chip
+                          label={agent.status}
+                          color={agent.statusColor}
+                          size="small"
+                          sx={{ fontWeight: 800, transform: 'translateZ(20px)' }}
+                        />
                       </Stack>
-                      <Chip label={agent.status} color={agent.statusColor} size="small" sx={{ fontWeight: 800 }} />
-                    </Stack>
 
-                    <Typography variant="body2" color="text.secondary" paragraph sx={{ lineHeight: 1.6 }}>
-                      {agent.desc}
-                    </Typography>
+                      <Typography variant="body2" color="text.secondary" paragraph sx={{ lineHeight: 1.6, transform: 'translateZ(15px)' }}>
+                        {agent.desc}
+                      </Typography>
 
-                    <Divider sx={{ my: 2, borderColor: mode === 'light' ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.08)' }} />
+                      <Divider sx={{ my: 2, borderColor: isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.08)' }} />
 
-                    <Grid container spacing={1}>
-                      {agent.highlights.map((h, i) => (
-                        <Grid item xs={12} sm={6} key={i}>
-                          <Stack direction="row" spacing={1} alignItems="center">
-                            <CheckCircleIcon sx={{ fontSize: 16, color: agent.color }} />
-                            <Typography variant="caption" sx={{ fontWeight: 600, color: 'text.primary' }}>
-                              {h}
-                            </Typography>
-                          </Stack>
-                        </Grid>
-                      ))}
-                    </Grid>
-                  </CardContent>
-                </Card>
+                      <Grid container spacing={1.25} sx={{ transform: 'translateZ(20px)' }}>
+                        {agent.highlights.map((h, i) => (
+                          <Grid item xs={12} sm={6} key={i}>
+                            <Stack direction="row" spacing={1} alignItems="center">
+                              <CheckCircleIcon sx={{ fontSize: 16, color: agent.color }} />
+                              <Typography variant="caption" sx={{ fontWeight: 650, color: 'text.primary' }}>
+                                {h}
+                              </Typography>
+                            </Stack>
+                          </Grid>
+                        ))}
+                      </Grid>
+                    </CardContent>
+                  </Card>
+                </TiltCard3D>
               </Grid>
             ))}
           </Grid>
         </Container>
       </Box>
 
-      {/* Call to Action Banner */}
-      <Container maxWidth="xl" sx={{ py: 10 }}>
+      {/* 3D Call to Action Banner */}
+      <Container maxWidth="xl" sx={{ py: 10, position: 'relative', zIndex: 1 }}>
         <Paper
           variant="outlined"
           sx={{
             p: { xs: 4, md: 6 },
             borderRadius: '32px',
-            background: mode === 'light' 
+            background: isLight 
               ? 'linear-gradient(135deg, rgba(15, 118, 110, 0.08) 0%, rgba(109, 40, 217, 0.08) 100%)'
               : 'linear-gradient(135deg, rgba(20, 184, 166, 0.15) 0%, rgba(124, 58, 237, 0.15) 100%)',
             border: '1px solid',
-            borderColor: mode === 'light' ? 'rgba(15, 118, 110, 0.25)' : 'rgba(20, 184, 166, 0.3)',
+            borderColor: isLight ? 'rgba(15, 118, 110, 0.25)' : 'rgba(20, 184, 166, 0.3)',
             textAlign: 'center',
+            boxShadow: isLight ? '0 15px 40px rgba(15,118,110,0.1)' : '0 20px 50px rgba(0,0,0,0.4)',
           }}
         >
           <Typography variant="h3" sx={{ fontWeight: 900, mb: 2 }}>
-            Ready to Experience AI-Driven CDSS?
+            Experience 3D AI-Driven CDSS Today
           </Typography>
           <Typography variant="h6" color="text.secondary" sx={{ maxWidth: 700, mx: 'auto', mb: 4, fontWeight: 400 }}>
             Sign in as a clinician to run real-time patient assessments or log in as a patient to view personalized care plans.
@@ -471,7 +478,7 @@ export default function LandingPage({ onAuthSuccess }) {
               variant="outlined"
               size="large"
               onClick={() => handleOpenAuth('patient')}
-              sx={{ px: 5, py: 1.75, fontSize: '1.05rem', borderRadius: '12px', borderColor: mode === 'light' ? '#cbd5e1' : 'rgba(255,255,255,0.3)', color: 'text.primary', fontWeight: 700 }}
+              sx={{ px: 5, py: 1.75, fontSize: '1.05rem', borderRadius: '12px', borderColor: isLight ? '#cbd5e1' : 'rgba(255,255,255,0.3)', color: 'text.primary', fontWeight: 700 }}
             >
               Sign In as Patient
             </Button>
@@ -488,10 +495,10 @@ export default function LandingPage({ onAuthSuccess }) {
         PaperProps={{
           sx: {
             borderRadius: '24px',
-            bgcolor: mode === 'light' ? '#ffffff' : '#0f171e',
+            bgcolor: isLight ? '#ffffff' : '#0f171e',
             backgroundImage: 'none',
             border: '1px solid',
-            borderColor: mode === 'light' ? 'rgba(15, 118, 110, 0.2)' : 'rgba(20, 184, 166, 0.3)',
+            borderColor: isLight ? 'rgba(15, 118, 110, 0.2)' : 'rgba(20, 184, 166, 0.3)',
           },
         }}
       >

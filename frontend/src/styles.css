@@ -94,6 +94,26 @@ body {
   100% { background-position: 0% 50%; }
 }
 
+/* 3D Core Keyframe Animations */
+@keyframes spin3D {
+  0% { transform: rotateX(65deg) rotateY(15deg) rotateZ(0deg); }
+  100% { transform: rotateX(65deg) rotateY(15deg) rotateZ(360deg); }
+}
+
+@keyframes spin3DReverse {
+  0% { transform: rotateX(-55deg) rotateY(35deg) rotateZ(360deg); }
+  100% { transform: rotateX(-55deg) rotateY(35deg) rotateZ(0deg); }
+}
+
+@keyframes float3D {
+  0%, 100% {
+    transform: translateY(0px) rotateX(0deg) rotateY(0deg);
+  }
+  50% {
+    transform: translateY(-12px) rotateX(2deg) rotateY(-2deg);
+  }
+}
+
 /* Class Helpers */
 .animated-hero {
   background: linear-gradient(-45deg, rgba(15, 118, 110, 0.15), rgba(124, 58, 237, 0.12), rgba(20, 184, 166, 0.08), rgba(139, 92, 246, 0.06));
@@ -188,7 +208,7 @@ body {
   animation: pipelineFlow 1s linear infinite;
 }
 
-/* Confusion Matrix Redesign */
+/* Matrix Grid */
 .matrix-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -222,7 +242,7 @@ body {
   background: rgba(20, 184, 166, 0.08);
 }
 
-/* Brain Scan Diagnostic Animation Overlay */
+/* Scanner Overlay */
 .scanner-overlay {
   position: absolute;
   top: 0;
