@@ -29,19 +29,59 @@ body {
   background: rgba(15, 118, 110, 0.5);
 }
 
-/* Glassmorphism Styles */
+/* Glassmorphism 3D Styles */
 .glass-panel {
-  background: rgba(255, 255, 255, 0.7) !important;
-  backdrop-filter: blur(12px) saturate(180%);
-  -webkit-backdrop-filter: blur(12px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  background: rgba(255, 255, 255, 0.75) !important;
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.4) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.04);
 }
 
 .dark .glass-panel {
-  background: rgba(15, 23, 30, 0.7) !important;
-  backdrop-filter: blur(16px) saturate(160%);
-  -webkit-backdrop-filter: blur(16px) saturate(160%);
-  border: 1px solid rgba(255, 255, 255, 0.06) !important;
+  background: rgba(15, 23, 30, 0.75) !important;
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+}
+
+/* 3D Depth Utilities */
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+
+.depth-1 {
+  transform: translateZ(10px);
+}
+
+.depth-2 {
+  transform: translateZ(20px);
+}
+
+.depth-3 {
+  transform: translateZ(35px);
+}
+
+/* Glowing 3D Borders */
+.glow-3d-primary {
+  box-shadow: 0 10px 30px rgba(20, 184, 166, 0.25);
+  border-color: rgba(20, 184, 166, 0.4) !important;
+}
+
+.glow-3d-rose {
+  box-shadow: 0 10px 30px rgba(244, 63, 94, 0.25);
+  border-color: rgba(244, 63, 94, 0.4) !important;
+}
+
+.glow-3d-amber {
+  box-shadow: 0 10px 30px rgba(245, 158, 11, 0.25);
+  border-color: rgba(245, 158, 11, 0.4) !important;
+}
+
+.glow-3d-sky {
+  box-shadow: 0 10px 30px rgba(2, 132, 199, 0.25);
+  border-color: rgba(2, 132, 199, 0.4) !important;
 }
 
 /* Animations */
@@ -67,7 +107,7 @@ body {
   }
   50% {
     transform: scale(1.05);
-    box-shadow: 0 0 16px 4px rgba(20, 184, 166, 0.2);
+    box-shadow: 0 0 20px 6px rgba(20, 184, 166, 0.3);
   }
 }
 
@@ -133,7 +173,7 @@ body {
   -webkit-text-fill-color: transparent;
 }
 
-/* Redesigned Clinical Pipeline Workflow */
+/* Redesigned 3D Clinical Pipeline Workflow */
 .pipeline-wrapper {
   display: flex;
   align-items: center;
@@ -142,6 +182,7 @@ body {
   padding: 24px;
   overflow-x: auto;
   gap: 16px;
+  perspective: 1000px;
 }
 
 .pipeline-node {
@@ -149,26 +190,27 @@ body {
   min-width: 150px;
   max-width: 220px;
   padding: 16px;
-  border-radius: 12px;
+  border-radius: 14px;
   text-align: center;
-  background: rgba(255, 255, 255, 0.8);
-  border: 1px solid rgba(15, 118, 110, 0.15);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
-  transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(15, 118, 110, 0.2);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.04);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   z-index: 2;
+  transform-style: preserve-3d;
 }
 
 .dark .pipeline-node {
-  background: rgba(18, 24, 30, 0.8);
-  border: 1px solid rgba(20, 184, 166, 0.15);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  background: rgba(18, 24, 30, 0.85);
+  border: 1px solid rgba(20, 184, 166, 0.2);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
 }
 
 .pipeline-node:hover {
-  transform: translateY(-4px);
+  transform: translateY(-6px) translateZ(15px) rotateX(4deg);
   border-color: rgba(20, 184, 166, 0.6);
-  box-shadow: 0 8px 24px rgba(20, 184, 166, 0.15);
+  box-shadow: 0 12px 30px rgba(20, 184, 166, 0.25);
 }
 
 .pipeline-node.active-hub {
@@ -242,16 +284,17 @@ body {
   background: rgba(20, 184, 166, 0.08);
 }
 
-/* Scanner Overlay */
+/* 3D Scanner Overlay */
 .scanner-overlay {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 4px;
-  background: linear-gradient(90deg, transparent, rgba(20, 184, 166, 0.8), transparent);
-  box-shadow: 0 0 10px rgba(20, 184, 166, 0.8);
+  background: linear-gradient(90deg, transparent, rgba(20, 184, 166, 0.9), transparent);
+  box-shadow: 0 0 12px rgba(20, 184, 166, 0.9);
   animation: scannerSweep 2.5s infinite linear;
+  pointer-events: none;
 }
 
 @media (max-width: 768px) {

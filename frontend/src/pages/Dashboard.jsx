@@ -19,18 +19,18 @@ import AirIcon from '@mui/icons-material/Air';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
-import MetricCard from '../components/MetricCard.jsx';
+import TiltCard3D from '../components/TiltCard3D.jsx';
 
 export default function Dashboard() {
   const agents = [
     {
       id: 'diabetes',
       title: 'Diabetes Specialist Agent',
-      subtitle: 'Glycemic Risk, XGBoost ML & Clinical Reasoning',
+      subtitle: 'Glycemic Risk, XGBoost ML & Gemini AI Reasoning',
       icon: <BloodtypeIcon sx={{ fontSize: 36 }} />,
       color: '#14b8a6',
-      bgGrad: 'linear-gradient(135deg, rgba(20, 184, 166, 0.12) 0%, rgba(13, 148, 136, 0.03) 100%)',
-      border: 'rgba(20, 184, 166, 0.3)',
+      bgGrad: 'linear-gradient(135deg, rgba(20, 184, 166, 0.14) 0%, rgba(13, 148, 136, 0.04) 100%)',
+      border: 'rgba(20, 184, 166, 0.35)',
       status: 'ONLINE & OPERATIONAL',
       statusColor: 'success',
       to: '/intake',
@@ -40,7 +40,7 @@ export default function Dashboard() {
         '97.1% Accuracy XGBoost Risk Engine',
         'Fasting Glucose & HbA1c Threshold Triggers',
         '200k+ Indian Pharma Brand Composition Lookup',
-        'Groq LLaMA-3.3 Clinical Explanation Generator',
+        'Tier 1 Gemini 2.5 AI Clinical Explanation Generator',
       ],
     },
     {
@@ -49,9 +49,9 @@ export default function Dashboard() {
       subtitle: '10-Yr ASCVD Risk, Troponin-I & Coronary CDSS',
       icon: <FavoriteIcon sx={{ fontSize: 36 }} />,
       color: '#f43f5e',
-      bgGrad: 'linear-gradient(135deg, rgba(244, 63, 94, 0.12) 0%, rgba(225, 29, 72, 0.03) 100%)',
-      border: 'rgba(244, 63, 94, 0.3)',
-      status: 'INTERACTIVE UI PREVIEW',
+      bgGrad: 'linear-gradient(135deg, rgba(244, 63, 94, 0.14) 0%, rgba(225, 29, 72, 0.04) 100%)',
+      border: 'rgba(244, 63, 94, 0.35)',
+      status: 'INTERACTIVE 3D WORKSPACE',
       statusColor: 'warning',
       to: '/heart',
       actionLabel: 'Enter Heart Agent Workspace',
@@ -69,9 +69,9 @@ export default function Dashboard() {
       subtitle: 'CKD Staging, eGFR CKD-EPI & Albuminuria CDSS',
       icon: <WaterDropIcon sx={{ fontSize: 36 }} />,
       color: '#f59e0b',
-      bgGrad: 'linear-gradient(135deg, rgba(245, 158, 11, 0.12) 0%, rgba(217, 119, 6, 0.03) 100%)',
-      border: 'rgba(245, 158, 11, 0.3)',
-      status: 'INTERACTIVE UI PREVIEW',
+      bgGrad: 'linear-gradient(135deg, rgba(245, 158, 11, 0.14) 0%, rgba(217, 119, 6, 0.04) 100%)',
+      border: 'rgba(245, 158, 11, 0.35)',
+      status: 'INTERACTIVE 3D WORKSPACE',
       statusColor: 'warning',
       to: '/kidney',
       actionLabel: 'Enter Kidney Agent Workspace',
@@ -89,9 +89,9 @@ export default function Dashboard() {
       subtitle: 'GOLD COPD Staging, FEV1/FVC & Spirometry CDSS',
       icon: <AirIcon sx={{ fontSize: 36 }} />,
       color: '#0284c7',
-      bgGrad: 'linear-gradient(135deg, rgba(2, 132, 199, 0.12) 0%, rgba(14, 165, 233, 0.03) 100%)',
-      border: 'rgba(2, 132, 199, 0.3)',
-      status: 'INTERACTIVE UI PREVIEW',
+      bgGrad: 'linear-gradient(135deg, rgba(2, 132, 199, 0.14) 0%, rgba(14, 165, 233, 0.04) 100%)',
+      border: 'rgba(2, 132, 199, 0.35)',
+      status: 'INTERACTIVE 3D WORKSPACE',
       statusColor: 'warning',
       to: '/lung',
       actionLabel: 'Enter Lung Agent Workspace',
@@ -106,285 +106,264 @@ export default function Dashboard() {
   ];
 
   return (
-    <Stack spacing={4}>
+    <Stack spacing={4} sx={{ perspective: '1200px' }}>
       {/* Top Hero Banner */}
-      <Paper
-        className="animated-hero"
-        variant="outlined"
-        sx={{
-          p: { xs: 3, md: 5 },
-          position: 'relative',
-          overflow: 'hidden',
-          borderRadius: '24px',
-          border: '1px solid rgba(20, 184, 166, 0.2)',
-        }}
-      >
-        <Grid container spacing={4} alignItems="center">
-          <Grid item xs={12} md={8}>
-            <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: 1.5 }}>
-              <Chip 
-                icon={<AutoAwesomeIcon />} 
-                label="Multi-Agent AI CDSS Platform" 
-                color="primary" 
-                variant="outlined"
-                sx={{ fontWeight: 700 }}
-              />
-            </Stack>
-            <Typography 
-              variant="h3" 
-              gutterBottom 
-              sx={{ 
-                fontWeight: 900, 
-                letterSpacing: '-0.03em',
-                lineHeight: 1.15,
-                fontSize: { xs: '2rem', sm: '2.5rem', md: '3.25rem' }
-              }}
-            >
-              4 Specialist Autonomous <span className="text-gradient-primary">Healthcare AI Agents</span>
-            </Typography>
-            <Typography 
-              variant="body1"
-              color="text.secondary" 
-              sx={{ 
-                maxWidth: 760, 
-                fontSize: { xs: '1rem', md: '1.125rem' },
-                lineHeight: 1.6,
-                mt: 2
-              }}
-            >
-              Select a specialized clinical agent below. The <strong>Diabetes Specialist Agent</strong> is fully powered by our end-to-end ML prediction pipeline, Groq LLM clinical reasoning, and SQLite database. Explore interactive agent UI previews for Cardiology, Nephrology, and Pulmonology.
-            </Typography>
+      <TiltCard3D color="#14b8a6">
+        <Paper
+          className="animated-hero"
+          variant="outlined"
+          sx={{
+            p: { xs: 3.5, md: 5 },
+            position: 'relative',
+            overflow: 'hidden',
+            borderRadius: '28px',
+            border: '1px solid rgba(20, 184, 166, 0.3)',
+          }}
+        >
+          <Grid container spacing={4} alignItems="center" sx={{ transformStyle: 'preserve-3d' }}>
+            <Grid item xs={12} md={8} sx={{ transform: 'translateZ(20px)' }}>
+              <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: 1.5 }}>
+                <Chip 
+                  icon={<AutoAwesomeIcon />} 
+                  label="Multi-Agent AI CDSS Platform" 
+                  color="primary" 
+                  variant="outlined"
+                  sx={{ fontWeight: 800 }}
+                />
+              </Stack>
+              <Typography 
+                variant="h3" 
+                gutterBottom 
+                sx={{ 
+                  fontWeight: 900, 
+                  letterSpacing: '-0.03em',
+                  lineHeight: 1.15,
+                  fontSize: { xs: '2rem', sm: '2.5rem', md: '3.25rem' }
+                }}
+              >
+                4 Specialist Autonomous <span className="text-gradient-primary">Healthcare AI Agents</span>
+              </Typography>
+              <Typography 
+                variant="body1"
+                color="text.secondary" 
+                sx={{ 
+                  maxWidth: 760, 
+                  fontSize: { xs: '1rem', md: '1.125rem' },
+                  lineHeight: 1.6,
+                  mt: 2,
+                  fontWeight: 500,
+                }}
+              >
+                Select a specialized clinical agent below. The <strong>Diabetes Specialist Agent</strong> is fully operational with our ML prediction pipeline, Tier 1 Gemini 2.5 AI clinical reasoning, and 200k+ Indian pharma brand lookup.
+              </Typography>
+            </Grid>
+            <Grid item xs={12} md={4} sx={{ display: 'flex', justifyContent: { xs: 'flex-start', md: 'flex-end' }, transform: 'translateZ(25px)' }}>
+              <Button 
+                component={Link} 
+                to="/intake" 
+                variant="contained" 
+                size="large" 
+                endIcon={<ArrowForwardIcon />}
+                sx={{ 
+                  px: 4, 
+                  py: 2, 
+                  fontSize: '1.05rem', 
+                  borderRadius: '14px',
+                  fontWeight: 800,
+                  boxShadow: '0 8px 25px rgba(20, 184, 166, 0.4)',
+                  width: { xs: '100%', md: 'auto' }
+                }}
+              >
+                Launch Diabetes Agent
+              </Button>
+            </Grid>
           </Grid>
-          <Grid item xs={12} md={4} sx={{ display: 'flex', justifyContent: { xs: 'flex-start', md: 'flex-end' } }}>
-            <Button 
-              component={Link} 
-              to="/intake" 
-              variant="contained" 
-              size="large" 
-              endIcon={<ArrowForwardIcon />}
-              sx={{ 
-                px: 4, 
-                py: 2, 
-                fontSize: '1.05rem', 
-                borderRadius: '12px',
-                width: { xs: '100%', md: 'auto' }
-              }}
-            >
-              Launch Diabetes Agent
-            </Button>
-          </Grid>
-        </Grid>
-      </Paper>
+        </Paper>
+      </TiltCard3D>
 
       {/* 4 Agent Selection Cards Grid */}
       <Box>
-        <Typography variant="h5" sx={{ fontWeight: 800, mb: 3, letterSpacing: '-0.01em' }}>
-          Specialized Agent Workspaces
+        <Typography variant="h5" sx={{ fontWeight: 850, mb: 3, letterSpacing: '-0.01em' }}>
+          3D Interactive Specialist Agent Workspaces
         </Typography>
 
-        <Grid container spacing={3}>
+        <Grid container spacing={3.5}>
           {agents.map((agent) => (
             <Grid item xs={12} md={6} key={agent.id}>
-              <Card
-                variant="outlined"
-                sx={{
-                  borderRadius: '20px',
-                  background: agent.bgGrad,
-                  border: `1px solid ${agent.border}`,
-                  transition: 'all 0.35s cubic-bezier(0.4, 0, 0.2, 1)',
-                  height: '100%',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'space-between',
-                  '&:hover': {
-                    transform: 'translateY(-4px)',
-                    boxShadow: `0 12px 32px ${agent.color}25`,
-                    borderColor: agent.color,
-                  },
-                }}
-              >
-                <CardContent sx={{ p: { xs: 3, sm: 4 } }}>
-                  <Stack direction="row" justifyContent="space-between" alignItems="flex-start" sx={{ mb: 2.5 }}>
-                    <Box
-                      sx={{
-                        bgcolor: `${agent.color}20`,
-                        color: agent.color,
-                        p: 1.75,
-                        borderRadius: '16px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                      }}
-                    >
-                      {agent.icon}
+              <TiltCard3D color={agent.color} sx={{ height: '100%' }}>
+                <Card
+                  variant="outlined"
+                  sx={{
+                    borderRadius: '24px',
+                    background: agent.bgGrad,
+                    border: `1px solid ${agent.border}`,
+                    height: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between',
+                  }}
+                >
+                  <CardContent sx={{ p: { xs: 3.5, sm: 4 }, transformStyle: 'preserve-3d' }}>
+                    <Stack direction="row" justifyContent="space-between" alignItems="flex-start" sx={{ mb: 2.5, transform: 'translateZ(20px)' }}>
+                      <Box
+                        sx={{
+                          bgcolor: `${agent.color}25`,
+                          color: agent.color,
+                          p: 1.75,
+                          borderRadius: '16px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          boxShadow: `0 8px 20px ${agent.color}30`,
+                        }}
+                      >
+                        {agent.icon}
+                      </Box>
+                      <Chip
+                        label={agent.status}
+                        color={agent.statusColor}
+                        size="small"
+                        sx={{ fontWeight: 800, fontSize: '0.75rem' }}
+                      />
+                    </Stack>
+
+                    <Typography variant="h5" sx={{ fontWeight: 850, mb: 0.5, color: agent.color, transform: 'translateZ(25px)' }}>
+                      {agent.title}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 3, fontWeight: 500, transform: 'translateZ(15px)' }}>
+                      {agent.subtitle}
+                    </Typography>
+
+                    <Divider sx={{ my: 2, borderColor: `${agent.color}20` }} />
+
+                    <Stack spacing={1.5} sx={{ mb: 3.5, transform: 'translateZ(15px)' }}>
+                      {agent.features.map((feat, idx) => (
+                        <Stack key={idx} direction="row" spacing={1.25} alignItems="center">
+                          <CheckCircleIcon sx={{ fontSize: 18, color: agent.color }} />
+                          <Typography variant="body2" sx={{ fontWeight: 500, fontSize: '0.875rem' }}>
+                            {feat}
+                          </Typography>
+                        </Stack>
+                      ))}
+                    </Stack>
+
+                    <Box sx={{ transform: 'translateZ(25px)' }}>
+                      <Button
+                        component={Link}
+                        to={agent.to}
+                        variant={agent.isFullyFunctional ? 'contained' : 'outlined'}
+                        fullWidth
+                        size="large"
+                        endIcon={<ArrowForwardIcon />}
+                        sx={{
+                          py: 1.6,
+                          borderRadius: '14px',
+                          bgcolor: agent.isFullyFunctional ? agent.color : 'transparent',
+                          borderColor: agent.color,
+                          color: agent.isFullyFunctional ? '#080c0f' : agent.color,
+                          fontWeight: 800,
+                          fontSize: '0.95rem',
+                          boxShadow: agent.isFullyFunctional ? `0 8px 25px ${agent.color}40` : 'none',
+                        }}
+                      >
+                        {agent.actionLabel}
+                      </Button>
                     </Box>
-                    <Chip
-                      label={agent.status}
-                      color={agent.statusColor}
-                      size="small"
-                      sx={{ fontWeight: 800, fontSize: '0.75rem' }}
-                    />
-                  </Stack>
-
-                  <Typography variant="h5" sx={{ fontWeight: 800, mb: 0.5, color: agent.color }}>
-                    {agent.title}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary" sx={{ mb: 3, fontWeight: 500 }}>
-                    {agent.subtitle}
-                  </Typography>
-
-                  <Divider sx={{ my: 2, borderColor: `${agent.color}20` }} />
-
-                  <Stack spacing={1.25} sx={{ mb: 3 }}>
-                    {agent.features.map((feat, idx) => (
-                      <Stack key={idx} direction="row" spacing={1.25} alignItems="center">
-                        <CheckCircleIcon sx={{ fontSize: 18, color: agent.color }} />
-                        <Typography variant="body2" sx={{ fontWeight: 500, fontSize: '0.875rem' }}>
-                          {feat}
-                        </Typography>
-                      </Stack>
-                    ))}
-                  </Stack>
-
-                  <Button
-                    component={Link}
-                    to={agent.to}
-                    variant={agent.isFullyFunctional ? 'contained' : 'outlined'}
-                    fullWidth
-                    size="large"
-                    endIcon={<ArrowForwardIcon />}
-                    sx={{
-                      py: 1.5,
-                      borderRadius: '12px',
-                      bgcolor: agent.isFullyFunctional ? agent.color : 'transparent',
-                      borderColor: agent.color,
-                      color: agent.isFullyFunctional ? '#080c0f' : agent.color,
-                      fontWeight: 700,
-                      '&:hover': {
-                        bgcolor: agent.isFullyFunctional ? agent.color : `${agent.color}15`,
-                        borderColor: agent.color,
-                        filter: 'brightness(1.1)',
-                      },
-                    }}
-                  >
-                    {agent.actionLabel}
-                  </Button>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              </TiltCard3D>
             </Grid>
           ))}
         </Grid>
       </Box>
 
       {/* Decision Support Pipeline Diagram */}
-      <Box className="glass-panel" sx={{ p: { xs: 3, md: 4 }, borderRadius: '20px' }}>
-        <Typography variant="h6" sx={{ mb: 3, fontWeight: 700, letterSpacing: '-0.01em' }}>
-          Multi-Agent Orchestration & Clinical Routing Pipeline
-        </Typography>
-        
-        <Box className="pipeline-wrapper">
-          <Box className="pipeline-node">
-            <Typography variant="subtitle2" color="primary.main" sx={{ fontWeight: 700, mb: 0.5 }}>
-              Patient Intake
-            </Typography>
-            <Typography variant="caption" color="text.secondary">
-              Vitals & Symptoms Input
-            </Typography>
-          </Box>
+      <TiltCard3D color="#14b8a6">
+        <Box className="glass-panel" sx={{ p: { xs: 3.5, md: 4 }, borderRadius: '24px' }}>
+          <Typography variant="h6" sx={{ mb: 3, fontWeight: 800, letterSpacing: '-0.01em' }}>
+            Multi-Agent Orchestration &amp; Clinical Routing Pipeline
+          </Typography>
+          
+          <Box className="pipeline-wrapper">
+            <Box className="pipeline-node">
+              <Typography variant="subtitle2" color="primary.main" sx={{ fontWeight: 800, mb: 0.5 }}>
+                Patient Intake
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                Vitals &amp; Symptoms Input
+              </Typography>
+            </Box>
 
-          <Box className="pipeline-connector">
-            <svg viewBox="0 0 100 24">
-              <defs>
-                <linearGradient id="connectorGradient1" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stopColor="#14b8a6" />
-                  <stop offset="100%" stopColor="#0d9488" />
-                </linearGradient>
-              </defs>
-              <path d="M 0 12 L 100 12" className="pipeline-flow-path" />
-              <path d="M 0 12 L 100 12" className="pipeline-flow-path-active" style={{ stroke: 'url(#connectorGradient1)' }} />
-              <polygon points="92,8 100,12 92,16" fill="#0d9488" />
-            </svg>
-          </Box>
+            <Box className="pipeline-connector">
+              <svg viewBox="0 0 100 24">
+                <path d="M 0 12 L 100 12" className="pipeline-flow-path" />
+                <path d="M 0 12 L 100 12" className="pipeline-flow-path-active" style={{ stroke: '#14b8a6' }} />
+                <polygon points="92,8 100,12 92,16" fill="#14b8a6" />
+              </svg>
+            </Box>
 
-          <Box className="pipeline-node active-hub">
-            <Typography variant="subtitle2" color="primary.main" sx={{ fontWeight: 700, mb: 0.5 }}>
-              General Medicine
-            </Typography>
-            <Typography variant="caption" color="text.secondary">
-              Primary Symptom Router
-            </Typography>
-          </Box>
+            <Box className="pipeline-node active-hub">
+              <Typography variant="subtitle2" color="primary.main" sx={{ fontWeight: 800, mb: 0.5 }}>
+                General Medicine
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                Primary Symptom Router
+              </Typography>
+            </Box>
 
-          <Box className="pipeline-connector">
-            <svg viewBox="0 0 100 24">
-              <defs>
-                <linearGradient id="connectorGradient2" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stopColor="#0d9488" />
-                  <stop offset="100%" stopColor="#7c3aed" />
-                </linearGradient>
-              </defs>
-              <path d="M 0 12 L 100 12" className="pipeline-flow-path" />
-              <path d="M 0 12 L 100 12" className="pipeline-flow-path-active" style={{ stroke: 'url(#connectorGradient2)' }} />
-              <polygon points="92,8 100,12 92,16" fill="#7c3aed" />
-            </svg>
-          </Box>
+            <Box className="pipeline-connector">
+              <svg viewBox="0 0 100 24">
+                <path d="M 0 12 L 100 12" className="pipeline-flow-path" />
+                <path d="M 0 12 L 100 12" className="pipeline-flow-path-active" style={{ stroke: '#7c3aed' }} />
+                <polygon points="92,8 100,12 92,16" fill="#7c3aed" />
+              </svg>
+            </Box>
 
-          <Box className="pipeline-node">
-            <Typography variant="subtitle2" color="secondary.main" sx={{ fontWeight: 700, mb: 0.5 }}>
-              Agent Router
-            </Typography>
-            <Typography variant="caption" color="text.secondary">
-              Diabetes / Organ Specialist
-            </Typography>
-          </Box>
+            <Box className="pipeline-node">
+              <Typography variant="subtitle2" color="secondary.main" sx={{ fontWeight: 800, mb: 0.5 }}>
+                Agent Router
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                Diabetes / Organ Specialist
+              </Typography>
+            </Box>
 
-          <Box className="pipeline-connector">
-            <svg viewBox="0 0 100 24">
-              <defs>
-                <linearGradient id="connectorGradient3" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stopColor="#7c3aed" />
-                  <stop offset="100%" stopColor="#14b8a6" />
-                </linearGradient>
-              </defs>
-              <path d="M 0 12 L 100 12" className="pipeline-flow-path" />
-              <path d="M 0 12 L 100 12" className="pipeline-flow-path-active" style={{ stroke: 'url(#connectorGradient3)' }} />
-              <polygon points="92,8 100,12 92,16" fill="#14b8a6" />
-            </svg>
-          </Box>
+            <Box className="pipeline-connector">
+              <svg viewBox="0 0 100 24">
+                <path d="M 0 12 L 100 12" className="pipeline-flow-path" />
+                <path d="M 0 12 L 100 12" className="pipeline-flow-path-active" style={{ stroke: '#14b8a6' }} />
+                <polygon points="92,8 100,12 92,16" fill="#14b8a6" />
+              </svg>
+            </Box>
 
-          <Box className="pipeline-node active-hub" style={{ animationDelay: '0.5s' }}>
-            <Typography variant="subtitle2" color="primary.main" sx={{ fontWeight: 700, mb: 0.5 }}>
-              Diabetes Agent
-            </Typography>
-            <Typography variant="caption" color="text.secondary">
-              Full XGBoost + LLM System
-            </Typography>
-          </Box>
+            <Box className="pipeline-node active-hub" style={{ animationDelay: '0.5s' }}>
+              <Typography variant="subtitle2" color="primary.main" sx={{ fontWeight: 800, mb: 0.5 }}>
+                Diabetes Agent
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                XGBoost + Gemini 2.5 AI
+              </Typography>
+            </Box>
 
-          <Box className="pipeline-connector">
-            <svg viewBox="0 0 100 24">
-              <defs>
-                <linearGradient id="connectorGradient4" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stopColor="#14b8a6" />
-                  <stop offset="100%" stopColor="#10b981" />
-                </linearGradient>
-              </defs>
-              <path d="M 0 12 L 100 12" className="pipeline-flow-path" />
-              <path d="M 0 12 L 100 12" className="pipeline-flow-path-active" style={{ stroke: 'url(#connectorGradient4)' }} />
-              <polygon points="92,8 100,12 92,16" fill="#10b981" />
-            </svg>
-          </Box>
+            <Box className="pipeline-connector">
+              <svg viewBox="0 0 100 24">
+                <path d="M 0 12 L 100 12" className="pipeline-flow-path" />
+                <path d="M 0 12 L 100 12" className="pipeline-flow-path-active" style={{ stroke: '#10b981' }} />
+                <polygon points="92,8 100,12 92,16" fill="#10b981" />
+              </svg>
+            </Box>
 
-          <Box className="pipeline-node">
-            <Typography variant="subtitle2" color="success.main" sx={{ fontWeight: 700, mb: 0.5 }}>
-              Clinical CDSS Report
-            </Typography>
-            <Typography variant="caption" color="text.secondary">
-              Diagnosis, Meds &amp; Diet
-            </Typography>
+            <Box className="pipeline-node">
+              <Typography variant="subtitle2" color="success.main" sx={{ fontWeight: 800, mb: 0.5 }}>
+                Clinical CDSS Report
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                Diagnosis, Meds &amp; Diet
+              </Typography>
+            </Box>
           </Box>
         </Box>
-      </Box>
+      </TiltCard3D>
     </Stack>
   );
 }

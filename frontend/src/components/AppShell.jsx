@@ -23,7 +23,9 @@ import MedicalServicesIcon from '@mui/icons-material/MedicalServices';
 import LogoutIcon from '@mui/icons-material/Logout';
 import HistoryIcon from '@mui/icons-material/History';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import ViewInArIcon from '@mui/icons-material/ViewInAr';
 import { AppStateContext } from '../App.jsx';
+import Hero3DCanvas from './Hero3DCanvas.jsx';
 
 export default function AppShell({ children }) {
   const { pathname } = useLocation();
@@ -43,16 +45,20 @@ export default function AppShell({ children }) {
       ];
 
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: 'background.default', pb: { xs: 8, sm: 0 } }}>
+    <Box sx={{ minHeight: '100vh', bgcolor: 'background.default', pb: { xs: 8, sm: 0 }, position: 'relative', overflowX: 'hidden' }}>
+      {/* Ambient 3D Particle Canvas Background */}
+      <Hero3DCanvas mode={mode} />
+
       <AppBar
         position="sticky"
         elevation={0}
         className="glass-panel"
         sx={{
+          zIndex: 50,
           borderBottom: '1px solid',
           borderColor: mode === 'light' ? 'rgba(0, 0, 0, 0.06)' : 'rgba(255, 255, 255, 0.06)',
-          background: mode === 'light' ? 'rgba(255, 255, 255, 0.85)' : 'rgba(15, 23, 30, 0.85)',
-          backdropFilter: 'blur(12px)',
+          background: mode === 'light' ? 'rgba(255, 255, 255, 0.82)' : 'rgba(15, 23, 30, 0.82)',
+          backdropFilter: 'blur(16px)',
         }}
       >
         <Container maxWidth="xl">
@@ -60,16 +66,17 @@ export default function AppShell({ children }) {
             <Stack direction="row" alignItems="center" spacing={1.5} component={Link} to="/" sx={{ textDecoration: 'none' }}>
               <Box
                 sx={{
-                  bgcolor: mode === 'light' ? 'rgba(15, 118, 110, 0.1)' : 'rgba(20, 184, 166, 0.15)',
+                  bgcolor: mode === 'light' ? 'rgba(15, 118, 110, 0.12)' : 'rgba(20, 184, 166, 0.18)',
                   color: 'primary.main',
                   p: 1,
-                  borderRadius: '10px',
+                  borderRadius: '12px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  transition: 'transform 0.3s ease',
+                  boxShadow: '0 4px 14px rgba(20, 184, 166, 0.25)',
+                  transition: 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
                   '&:hover': {
-                    transform: 'rotate(15deg) scale(1.1)',
+                    transform: 'rotate(20deg) scale(1.15)',
                   }
                 }}
               >
@@ -79,12 +86,23 @@ export default function AppShell({ children }) {
                 variant="h6"
                 className="text-gradient-primary"
                 sx={{
-                  fontWeight: 800,
+                  fontWeight: 900,
                   fontSize: { xs: '1.05rem', sm: '1.25rem' },
                   letterSpacing: '-0.02em',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1
                 }}
               >
-                Multi-Agent CDSS Portal
+                Multi-Agent 3D CDSS Portal
+                <Chip 
+                  icon={<ViewInArIcon style={{ fontSize: 14 }} />}
+                  label="3D UI" 
+                  size="small" 
+                  color="primary" 
+                  variant="outlined" 
+                  sx={{ height: 20, fontSize: '0.65rem', fontWeight: 800 }} 
+                />
               </Typography>
             </Stack>
 
@@ -103,9 +121,10 @@ export default function AppShell({ children }) {
                     sx={{
                       px: 1.75,
                       py: 0.85,
-                      borderRadius: '8px',
+                      borderRadius: '10px',
                       fontSize: '0.85rem',
-                      fontWeight: 650,
+                      fontWeight: 750,
+                      boxShadow: isActive ? '0 4px 14px rgba(20, 184, 166, 0.3)' : 'none',
                       color: isActive 
                         ? (mode === 'light' ? '#ffffff' : '#080c0f') 
                         : (mode === 'light' ? '#4b5563' : '#9ca3af'),
@@ -127,28 +146,29 @@ export default function AppShell({ children }) {
                 <Chip
                   icon={<AccountCircleIcon />}
                   label={
-                    <Typography variant="caption" sx={{ fontWeight: 700 }}>
+                    <Typography variant="caption" sx={{ fontWeight: 800 }}>
                       {currentUser.full_name} ({currentUser.role === 'doctor' ? 'Doctor' : 'Patient'})
                     </Typography>
                   }
                   color={currentUser.role === 'doctor' ? 'secondary' : 'default'}
                   variant="outlined"
-                  sx={{ display: { xs: 'none', sm: 'inline-flex' } }}
+                  sx={{ display: { xs: 'none', sm: 'inline-flex' }, borderRadius: '8px' }}
                 />
               )}
 
-              <Tooltip title={mode === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode'}>
+              <Tooltip title={mode === 'light' ? 'Switch to 3D Dark Mode' : 'Switch to 3D Light Mode'}>
                 <IconButton 
                   onClick={toggleMode} 
                   color="primary" 
                   aria-label="toggle theme"
                   sx={{
                     border: '1px solid',
-                    borderColor: mode === 'light' ? 'rgba(15, 118, 110, 0.2)' : 'rgba(20, 184, 166, 0.3)',
+                    borderColor: mode === 'light' ? 'rgba(15, 118, 110, 0.25)' : 'rgba(20, 184, 166, 0.35)',
                     p: 1,
                     transition: 'transform 0.4s ease',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
                     '&:hover': {
-                      transform: 'rotate(45deg)',
+                      transform: 'rotate(60deg) scale(1.1)',
                     }
                   }}
                 >
@@ -181,7 +201,7 @@ export default function AppShell({ children }) {
         </Container>
       </AppBar>
 
-      <Container maxWidth="xl" sx={{ py: { xs: 3, md: 5 } }}>
+      <Container maxWidth="xl" sx={{ py: { xs: 3, md: 5 }, position: 'relative', zIndex: 10 }}>
         {children}
       </Container>
 
@@ -200,7 +220,7 @@ export default function AppShell({ children }) {
           py: 1,
           zIndex: 100,
           background: mode === 'light' ? 'rgba(255, 255, 255, 0.85)' : 'rgba(15, 23, 30, 0.85)',
-          backdropFilter: 'blur(12px)',
+          backdropFilter: 'blur(16px)',
         }}
       >
         {nav.map((item) => {
