@@ -61,9 +61,37 @@ export default function ResultsPage() {
               diabetes: details.diabetes_prediction,
               input: { ...details.labs, symptoms: details.symptoms, patient_name: details.patient_name, patient_email: details.patient_email }
             });
+          } else {
+            // Auto-load sample demo results when no historical cases exist
+            setCaseResult({
+              general: sampleGeneralPrediction,
+              diabetes: null,
+              input: {
+                patient_name: 'John Doe',
+                patient_email: 'john.doe@example.com',
+                symptoms: 'fatigue, excessive thirst, frequent urination',
+                glucose: 184,
+                hba1c_level: 7.2,
+                age: 52,
+                gender: 'male',
+              }
+            });
           }
         } catch (err) {
-          console.log('No historical case found for results', err);
+          console.log('No historical case found for results, loading demo assessment:', err);
+          setCaseResult({
+            general: sampleGeneralPrediction,
+            diabetes: null,
+            input: {
+              patient_name: 'John Doe',
+              patient_email: 'john.doe@example.com',
+              symptoms: 'fatigue, excessive thirst, frequent urination',
+              glucose: 184,
+              hba1c_level: 7.2,
+              age: 52,
+              gender: 'male',
+            }
+          });
         } finally {
           setFetching(false);
         }
@@ -71,6 +99,7 @@ export default function ResultsPage() {
     }
     autoLoad();
   }, [caseResult, setCaseResult]);
+
 
   const loadDemo = () => {
     setCaseResult({
