@@ -182,7 +182,27 @@ flowchart TD
     *   `objective="binary:logistic"` (binary logistic regression loss function).
 *   **Model Serialization**: Saved via `joblib` inside `diabetes_xgb_pipeline.pkl`. Model metrics (Accuracy, F1, Recall, Precision, ROC-AUC score, and Confusion Matrix) are written to `diabetes_metrics.json`.
 
+### 2.3 Evaluation Results & Graphs
+
+#### Confusion Matrix Plot
+![Confusion Matrix Plot](docs/images/confusion_matrix.png)
+
+#### Receiver Operating Characteristic (ROC) Curve
+![ROC Curve Plot](docs/images/roc_curve.png)
+
+#### Feature Importance Breakdown
+![Feature Importance Plot](docs/images/feature_importance.png)
+
+### 2.4 User Interface Presentations
+
+#### Doctor Workspace & Clinical Intake
+![Doctor Workspace View](docs/images/doctor_dashboard_ui.png)
+
+#### Patient Care Portal
+![Patient Care View](docs/images/patient_care_ui.png)
+
 ---
+
 
 ## 3. Clinical Decision Support System (CDSS) Trigger & Diagnosis Flow
 

@@ -7,6 +7,9 @@ from pathlib import Path
 from docx import Document
 from docx.shared import Inches, Pt, RGBColor
 from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx.oxml import parse_xml
+from docx.oxml.ns import nsdecls
+
 
 def parse_inline_styles(paragraph, text):
     # Regex to find ***bold-italic***, **bold**, *italic*, and `code` patterns
@@ -224,6 +227,91 @@ def convert_md_to_docx(md_path, docx_path):
             i -= 1
             full_quote = ' '.join(quote_lines).strip()
             parse_inline_styles(p, full_quote)
+        # Images syntax ![alt](path)
+        elif stripped.startswith('![') and '](' in stripped and stripped.endswith(')'):
+            match = re.match(r'^!\[(.*?)\]\((.*?)\)', stripped)
+            if match:
+                alt_text, img_rel_path = match.group(1), match.group(2)
+                # Resolve image path relative to md file or workspace root
+                md_dir = Path(md_path).parent
+                img_path = (md_dir / img_rel_path).resolve()
+                if not img_path.exists():
+                    # Try workspace root fallback
+                    img_path = (Path(__file__).resolve().parent / img_rel_path).resolve()
+                
+                if img_path.exists():
+                    try:
+                        p = doc.add_paragraph()
+                        p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                        p.paragraph_format.space_before = Pt(12)
+                        p.paragraph_format.space_after = Pt(4)
+                        run = p.add_run()
+                        run.add_picture(str(img_path), width=Inches(5.8))
+                        
+                        p_cap = doc.add_paragraph()
+                        p_cap.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                        p_cap.paragraph_format.space_before = Pt(2)
+                        p_cap.paragraph_format.space_after = Pt(12)
+                        run_cap = p_cap.add_run(f"Figure: {alt_text if alt_text else 'Illustration'}")
+                        run_cap.italic = True
+                        run_cap.font.size = Pt(9.5)
+                        run_cap.font.color.rgb = RGBColor(100, 116, 139)
+                        print(f"Successfully embedded image: {img_path.name}")
+                    except Exception as e:
+                        print(f"Warning: Failed to insert image {img_path}: {e}")
+                else:
+                    print(f"Warning: Image file not found at {img_path}")
+        # Markdown Tables (| col1 | col2 |)
+        elif stripped.startswith('|') and stripped.endswith('|'):
+            table_lines = [stripped]
+            i += 1
+            while i < len(lines) and lines[i].strip().startswith('|') and lines[i].strip().endswith('|'):
+                table_lines.append(lines[i].strip())
+                i += 1
+            i -= 1
+            
+            # Parse table rows
+            rows_data = []
+            for t_line in table_lines:
+                # Skip separator line like |---|---|
+                if re.match(r'^\|[\s:-|-]+\|$', t_line):
+                    continue
+                cells = [c.strip() for c in t_line.strip('|').split('|')]
+                rows_data.append(cells)
+                
+            if rows_data:
+                num_rows = len(rows_data)
+                num_cols = max(len(r) for r in rows_data)
+                table = doc.add_table(rows=num_rows, cols=num_cols)
+                table.style = 'Table Grid'
+                table.autofit = True
+                
+                for r_idx, row_cells in enumerate(rows_data):
+                    row = table.rows[r_idx]
+                    is_header = (r_idx == 0)
+                    for c_idx, cell_text in enumerate(row_cells):
+                        if c_idx < len(row.cells):
+                            cell = row.cells[c_idx]
+                            cell.text = ""
+                            p = cell.paragraphs[0]
+                            p.paragraph_format.space_before = Pt(4)
+                            p.paragraph_format.space_after = Pt(4)
+                            if is_header:
+                                p.alignment = WD_ALIGN_PARAGRAPH.LEFT
+                                run = p.add_run(cell_text)
+                                run.bold = True
+                                run.font.color.rgb = RGBColor(255, 255, 255)
+                                # Dark slate background for header
+                                shading_elm = parse_xml(r'<w:shd {} w:fill="1E293B"/>'.format(nsdecls('w')))
+                                cell._tc.get_or_add_tcPr().append(shading_elm)
+                            else:
+                                parse_inline_styles(p, cell_text)
+                                if r_idx % 2 == 1:
+                                    shading_elm = parse_xml(r'<w:shd {} w:fill="F8FAFC"/>'.format(nsdecls('w')))
+                                    cell._tc.get_or_add_tcPr().append(shading_elm)
+                # Add spacing after table
+                p_space = doc.add_paragraph()
+                p_space.paragraph_format.space_after = Pt(6)
         # Bullet list items
         elif stripped.startswith('* ') or stripped.startswith('- '):
             p = doc.add_paragraph(style='List Bullet')
@@ -255,3 +343,4 @@ if __name__ == '__main__':
     md = sys.argv[1] if len(sys.argv) > 1 else 'EXPLANATION.md'
     docx = sys.argv[2] if len(sys.argv) > 2 else 'EXPLANATION.docx'
     convert_md_to_docx(md, docx)
+
